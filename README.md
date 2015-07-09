@@ -1,7 +1,7 @@
 # vmfcat
 Simple Variable Message Format (VMF) message generation and manipulation via command-line
 
-'''
+```
 Copyright (C) 2015  Jonathan Racicot <jonathan.racicot@rmc.ca>
 
 	This program comes with ABSOLUTELY NO WARRANTY. This is 
@@ -170,4 +170,4 @@ Message Security Group:
   --padding PADDING     Necessary for a block encryption algorithm so the
                         content of the message is a multiple of the encryption
                         block length.
-'''
+```
