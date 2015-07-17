@@ -3,7 +3,7 @@
 __version_info__ = ('0','1','0')
 __version__ = '.'.join(__version_info__)
 
-import sys
+import sys, traceback
 import math
 import time
 import argparse
@@ -14,12 +14,16 @@ from bitstring import BitArray
 
 usage = "%(prog)s [options] data"
 parser = argparse.ArgumentParser(usage=usage, 
-	prog="terrorcat", 
+	prog="vmfcat", 
 	version="%(prog)s "+__version__, 
 	description="Allows crafting of Variable Message Format (VMF) messages.")
 
 io_options = parser.add_argument_group(
 	"Input/Output Options", "Types of I/O supported.")
+io_options.add_argument("-d", "--debug",
+	dest="debug",
+	action="store_true",
+	help="Enables debug mode.")
 io_options.add_argument("-of", "--ofile",
  	dest="outputfile", 
 	nargs="?", 
@@ -133,10 +137,10 @@ msg_handling_options.add_argument("--fad",
 	dest="fad", 
 	action="store",
 	choices=[
-		"netcon", "infoex", "firesupport", 
-		"airops", "int", "land", 
-		"navy", "css", "special", 
-		"jtfops", "airdef"
+		"netcon", "geninfo", "firesp", 
+		"airops", "intops", "landops", 
+		"marops", "css", "specialops", 
+		"jtfopsctl", "airdef"
 	],
 	help="Identifies the functional area of a specific VMF message using code words.")
 msg_handling_options.add_argument("--msg-number", 
@@ -580,6 +584,102 @@ class umf(Enum):
 	undefined7 = 0xF	
 # =============================================================================
 
+class operation(Enum):
+	operation = 0x0
+	exercise = 0x1
+	simulation = 0x2
+	test = 0x3
+	
+class precedence(Enum):
+	reserved1 = 0x7
+	reserved2 = 0x6
+	critic = 0x5
+	flash_override = 0x4
+	flash = 0x3
+	immediate = 0x2
+	priority = 0x1
+	routine = 0x0
+	
+class classification(Enum):
+	unclassified = 0x0
+	confidential = 0x1
+	secret = 0x2
+	top_secret = 0x3
+
+class rc_codes(Enum):
+	undefined0 = 0x0
+	machine_receipt = 0x1
+	cantpro = 0x2
+	oprack = 0x3
+	wilco = 0x4
+	havco = 0x5
+	cantco = 0x6
+	undefined7 = 0x7
+
+class fad_codes(Enum):
+	netcon = 0x0
+	geninfo = 0x1
+	firesp = 0x2
+	airops = 0x3
+	intops = 0x4
+	landops = 0x5
+	marops = 0x6
+	css = 0x7
+	specialops = 0x8
+	jtfopsctl = 0x9
+	airdef = 0xA
+	undefined1 = 0xB
+	undefined2 = 0xC
+	undefined3 = 0XD
+	undefined4 = 0xE
+	undefined5 = 0xF
+	
+
+class cantco_reasons(Enum):
+	comms = 0x0
+	ammo = 0x1
+	pers = 0x2
+	fuel = 0x3
+	env = 0x4
+	equip = 0x5
+	tactical = 0x6
+	other = 0x7
+
+class cantpro_reasons(Enum):
+	undefned = 0x00
+	field_content = 0x01
+	msg_routing = 0x02
+	address = 0x03
+	ref_point = 0x04
+	fire_units = 0x05
+	mission_ctrl = 0x06
+	mission_num = 0x07
+	target_num = 0x08
+	schd_num = 0x09
+	ctrl_addr = 0x0A
+	track_num = 0x0B
+	invalid = 0x0C
+	msg_conv = 0x0D
+	file_full = 0x0E
+	unrec_msg_num = 0x0F
+	corelate_file = 0x10
+	limit_exceed = 0x11
+	sys_inactive = 0x12
+	addr_unk = 0x13
+	cant_fwd_acy = 0x14
+	cant_fwd_lnk = 0x15
+	ill_jux_fields = 0x16
+	fail_uncompress_lzw = 0x17
+	fail_uncompress_lz77 = 0x18
+	too_old = 0x19
+	sec_restrict = 0x1A
+	auth_fail = 0x1B
+	crt_404 = 0x1C
+	crt_invalid = 0x1D
+	spi_unsupported = 0x1E
+	fail_signed_ack = 0x1F
+	no_retrans = 0x20
+
 # =============================================================================
 # Group Class
 #
@@ -587,15 +687,12 @@ class umf(Enum):
 #	Class to represent sets of fields with similar functions.
 #
 class group(object):
-	gpi = DEFAULT_FPI
-	gri = DEFAULT_GRI
 	is_root = False
 	is_repeatable = False
 	max_repeat = 1
 	name = ""
 	parent_group = None
 	index = 0
-#	fields = []
 
 	def __init__(self, _name, _is_repeatable=False, _isroot=False, _parent=None, _max_repeat=1, _index=0):
 		self.name = _name
@@ -605,6 +702,8 @@ class group(object):
 		self.parent_group = _parent
 		self.index = _index
 		self.fields = []#*(6+15*ENABLE_FUTURE_GRP)
+		self.gpi = DEFAULT_FPI
+		self.gri = DEFAULT_GRI
 
 	def __repr__(self):
 		return "{:d}:{:s}".format(self.index, self.name)
@@ -623,18 +722,24 @@ class group(object):
 	def set_gri(self, _value):
 		self.gri = _value
 
-	def add_field(self, _position, _field):
+	def append_field(self, _field):
 		#TODO toggle GPI if field is indicator or FPI ==- present
-		self.fields.insert(_position, _field)
+		#doesn't work...
+		if (_field.fpi == PRESENT):
+			self.gpi = PRESENT
+		self.fields.append(_field)
 
 	def get_bit_array(self):
-		b = BitArray(self.gpi)
+		b = BitArray()
+		b.append("{:#03b}".format(self.gpi))
+		if (self.gpi == ABSENT):
+			return b
 		if (self.is_repeatable):
 			b.append("{:#03b}".format(self.gri))
 		for f in self.fields:
-			fbits = f.get_bit_array
+			fbits = f.get_bit_array()
 			b.append(fbits)
-
+		return b
 # =============================================================================
 # Field Class
 # Contains common properties to VMF fields 
@@ -663,7 +768,7 @@ class field(object):
 		self.format_str = "{:#0" + str(self.size+2) + "b}"
 
 	def __repr__(self):
-		return "{:d}:{:s}:{:s}".format(self.index, self.name, str(self.value))
+		return "<Field: {:d}:{:s}:{:s}>".format(self.index, self.name, str(self.value))
 
 	def __cmp__(self, _field):
 		if (isinstance(_field, field)):
@@ -679,16 +784,28 @@ class field(object):
 
 	def get_bit_array(self):
 		b = BitArray()
-		if (not self.is_indicator):
-			b.append("{:#03b}".format(self.fpi))
-		field_value = self.value
-		if (self.enumerator):
-			field_value = factory.get_value_from_dict(self.value, self.enumerator)
-		if (isinstance(field_value, int)):
-			if (self.is_repeatable):
-				b.append("{:#03b}".format(self.fri))
-			if (self.fpi == PRESENT or self.is_indicator):
+		if (self.is_indicator):
+			# This check is to verify the version number, which is
+			# an exception. It is not an indicator, but it does not
+			# have a FPI.
+			field_value = self.value
+			if (self.name == "Version" and self.enumerator):
+				field_value = factory.get_value_from_dict(self.value, self.enumerator)
 				b.append(self.format_str.format(field_value))
+			else:	
+				b.append("{:#03b}".format(field_value))
+			return b
+
+		b.append("{:#03b}".format(self.fpi))
+		if (self.fpi == PRESENT):
+			field_value = self.value
+			if (self.enumerator):
+				field_value = factory.get_value_from_dict(self.value, self.enumerator)
+			if (isinstance(field_value, int)):
+				if (self.is_repeatable):
+					b.append("{:#03b}".format(self.fri))
+				if (self.fpi == PRESENT or self.is_indicator):
+					b.append(self.format_str.format(field_value))
 		return b
 		#else:
 			#TODO: Process strings
@@ -700,45 +817,53 @@ class field(object):
 # Represents a field containing a DTG value. 
 class dtg_field(field):
 	has_extension = False
-
-	fields = {
-		"year" 	: field(
-				_name="year", 
-				_size=7, 
-				_indicator=True),
-		"month"	: field(
-				_name="month", 
-				_size=4, 
-				_indicator=True),
-		"day"	: field(
-				_name="day", 
-				_size=5, 
-				_indicator=True),
-		"hour"	: field(
-				_name="hour", 
-				_size=5, 
-				_indicator=True),
-		"minute": field(
-				_name="minute", 
-				_size=6, 
-				_indicator=True),
-		"second": field(
-				_name="second", 
-				_size=6, 
-				_value=NO_STATEMENT,
-				_indicator=True),
-		"ext"	: field(
-				_name="extension", 
-				_size=12)
-	}
-
+		
 	def __init__(self, _name, _size=46, _value=0, _groupcode = 0, _repeatable=False, _extension=True, _index=0):
 		super(dtg_field, self).__init__(_name, _size, _value, _groupcode, _repeatable, _index)
 		self.has_extension=_extension
-		self.set_value(_value)
+		self.fields = {
+			"year" 	: field(
+					_name="year", 
+					_size=7, 
+					_indicator=True,
+					_index=0),
+			"month"	: field(
+					_name="month", 
+					_size=4, 
+					_indicator=True,
+					_index=1),
+			"day"	: field(
+					_name="day", 
+					_size=5, 
+					_indicator=True,
+					_index=2),
+			"hour"	: field(
+					_name="hour", 
+					_size=5, 
+					_indicator=True,
+					_index=3),
+			"minute": field(
+					_name="minute", 
+					_size=6, 
+					_indicator=True,
+					_index=4),
+			"second": field(
+					_name="second", 
+					_size=6, 
+					_value=NO_STATEMENT,
+					_indicator=True,
+					_index=5),
+			"ext"	: field(
+					_name="extension", 
+					_size=12,
+					_index=6)
+		}
+		self.enable_and_set(_value)
 
-	def set_value(self, _value):
+	def enable_and_set(self, _value):
 		#Expected format: YYYY-MM-DD HH:mm[:ss] [extension]"
+		print("> New DTG: " + str(_value))
+		self.value = _value
 		if (_value):
 			self.fpi = PRESENT
 			date_items = _value.split(' ')
@@ -748,23 +873,29 @@ class dtg_field(field):
 				#
 				# Check if seconds are included.
 				#
+				secondsIncluded = False
 				if (date_items[1].count(":") > 1):
 					format_str = "%Y-%m-%d %H:%M:%S"
+					secondsIncluded = True
 				else:
 					self.fields["second"].enable_and_set(NO_STATEMENT)
-				
-				date_obj = datetime.strptime(date_items[0] + ' ' + date_items[1], format_str)
-				self.fields["year"].enable_and_set(date_obj.strftime('%Y'))
-				self.fields["month"].enable_and_set(date_obj.strftime('%m'))
-				self.fields["day"].enable_and_set(date_obj.strftime('%d'))
-				self.fields["hour"].enable_and_set(date_obj.strftime('%H'))
-				self.fields["minute"].enable_and_set(date_obj.strftime('%M'))
-	
+				#TODO: the year should only contain the last 2 digits, not the entire
+				# 4 digits.
+				date_obj = datetime.datetime.strptime(date_items[0] + ' ' + date_items[1], format_str)
+				self.fields["year"].enable_and_set(date_obj.year)
+				print(self.fields["year"])
+				self.fields["month"].enable_and_set(date_obj.month)
+				self.fields["day"].enable_and_set(date_obj.day)
+				self.fields["hour"].enable_and_set(date_obj.hour)
+				self.fields["minute"].enable_and_set(date_obj.minute)
+				if (secondsIncluded):
+					self.fields["second"].enable_and_set(date_obj.second)
 				#				
 				# Check if extension has been included
 				#
 				if (len(date_items) == 3):
-					self.fields["ext"].set_value(date_items[2])
+					self.fields["ext"].enable_and_set(date_items[2])
+				print(self)
 			else:
 				raise Exception("Unknown datetime group format: {:s}.".format(_value))
 
@@ -773,7 +904,10 @@ class dtg_field(field):
 		
 	def get_bit_array(self):
 		b = BitArray()
-		for f in self.fields:
+		dtgfields = self.fields.values()
+		#self.fields.sort()
+		dtgfields.sort()
+		for f in dtgfields:
 			if (f.name == "ext"):
 				if (self.has_extension):
 					fbits = f.get_bit_array()
@@ -782,11 +916,11 @@ class dtg_field(field):
 				fbits = f.get_bit_array()
 				b.append(fbits)
 		return b
-# =============================================================================
 
+	def __repr__(self):
+		return "<Datetime Group Field: {:d}:{:s}:{:s}>".format(self.index, self.name, str(self.value))
+		
 # =============================================================================
-# Header Class
-#class header:
 
 
 # =============================================================================
@@ -804,6 +938,7 @@ class factory:
 						_size=4,
 						_enumerator=version,
 						_groupcode=CODE_GRP_HEADER,
+						_indicator=True,
 						_index=0)],
 		"compress" 		: [field(
 						_name="Data Compression", 
@@ -844,6 +979,7 @@ class factory:
 		"umf"			: [field(
 						_name="UMF", 
 						_size=4, 
+						_enumerator=umf,
 						_groupcode=CODE_GRP_MSG_HAND,
 						_index=0)],
 		"messagevers"		: [field(
@@ -853,7 +989,8 @@ class factory:
 						_index=1)],
 		"fad"			: [field(
 						_name="FAD", 
-						_size=4, 
+						_size=4,
+						_enumerator=fad_codes, 
 						_groupcode=CODE_GRP_VMF_MSG_IDENT,
 						_index=0)],
 		"msgnumber"		: [field(
@@ -889,11 +1026,13 @@ class factory:
 		"msgprecedence"		: [field(
 						_name="Message Precedence Code",
 						_size=3,
+						_enumerator=precedence,
 						_groupcode=CODE_GRP_MSG_HAND,
 						_index=7)],
 		"classification"	: [field(
 						_name="Security Classification",
 						_size=2,
+						_enumerator=classification,
 						_groupcode=CODE_GRP_MSG_HAND,
 						_index=8)],
 		"releasemark"		: [field(
@@ -936,17 +1075,20 @@ class factory:
 		"rccode"		: [field(
 						_name="R/C",
 						_size=3,
+						_enumerator=rc_codes,
 						_groupcode=CODE_GRP_RESPONSE,
 						_indicator=True,
 						_index=13)],
 		"cantco"		: [field(
 						_name="Cantco Reason Code",
 						_size=3,
+						_enumerator=cantco_reasons,
 						_groupcode=CODE_GRP_RESPONSE,
 						_index=14)],
 		"cantpro"		: [field(
 						_name="Cantpro Reason Code",
 						_size=6,
+						_enumerator=cantpro_reasons,
 						_groupcode=CODE_GRP_RESPONSE,
 						_index=15)],
 		"replyamp"		: [field(
@@ -1162,6 +1304,8 @@ class factory:
 						print_setting(1, vmf_field_name, "0x{:02x}".format(field_value))
 					else:
 						print_setting(1, vmf_field_name, "{:s}".format(field_value))
+
+
 	@staticmethod
 	def get_value_from_dict(_key, _dict):
 		for key, value in _dict.__dict__.items():
@@ -1170,7 +1314,6 @@ class factory:
 		return None
 
 	def get_vmf_msg(self):
-		#Testing area for now...
 		print_msg(MSG_INFO, "Creating VMF message object...")
 #		f = self.vmf_fields['vmfversion'][0]
 #		ba = f.get_bit_array()
@@ -1184,8 +1327,8 @@ class factory:
 				raise Exception("Undefined group code: {:s}.".format(group_code))
 			#idx_group = f_array[i].index
 			group_name = self.vmf_groups[group_code][i].name
-			self.vmf_groups[group_code][i].fields.append(f_array[i])
-#			self.vmf_groups[group_code][i].add_field(idx_group, f_array[i])
+			#self.vmf_groups[group_code][i].fields.append(f_array[i])
+			self.vmf_groups[group_code][i].append_field(f_array[i])
 			print_msg(MSG_INFO, "Added field '{:s}' to group '{:s}'.".format(f_array[i].name, group_name))
 #			for f in self.vmf_groups[CODE_GRP_HEADER][0].fields:
 #				print(f.name)
@@ -1199,10 +1342,7 @@ class factory:
 				self.vmf_groups[parent_group][i].fields.append(g_array[i])
 				#self.vmf_groups[parent_group][i].add_field(idx_parent, g_array[i])
 				print_msg(MSG_INFO, "Added '{:s}' child group to '{:s}'.".format(g_array[i].name, parent_group))
-		#l = sorted(self.vmf_groups[CODE_GRP_HEADER][0].fields, key=self.vmf_groups[CODE_GRP_HEADER][0].fields.index)
-		l = sorted(self.vmf_groups[CODE_GRP_HEADER][0].fields)
-		print(l)
-		self.print_structure()
+		return root_grp
 
 	def print_structure(self):
 		print("="*60)
@@ -1233,6 +1373,30 @@ class factory:
 			raise Exception("Unknown element type: {:s}.".format(_elem))
 	
 
+	def print_header_binary(self):
+		print("="*60)
+		print_msg(MSG_INFO, "VMF Message Binary Fields")
+		header = self.vmf_groups[CODE_GRP_HEADER][0]
+		for i in range(0, len(header.fields)):
+			f = header.fields[i]
+			ba = f.get_bit_array()
+			if (isinstance(f, field)):
+				print_setting(1, f.name, ba.bin)
+			elif(isinstance(f, group)):
+				print_setting(1, f.name, ba.bin[0])
+				self.print_header_binary_rec(1, f)
+
+	def print_header_binary_rec(self, _tabs, _elem):
+		for i in range(0, len(_elem.fields)):
+			f = _elem.fields[i]
+			if (isinstance(f, field)):
+				ba = f.get_bit_array()
+				print_setting(_tabs, f.name, ba.bin)
+			elif(isinstance(f, group)):
+				ba = f.get_bit_array()
+				print_setting(1, f.name, ba.bin[0])
+				self.print_header_binary_rec(_tabs, f)
+
 	@staticmethod
 	def string_to_bitarray(_string, _maxsize=448):
 		b = BitArray()
@@ -1260,7 +1424,12 @@ def banner():
 	
 def print_msg(_type, _msg):
 	if (_type == MSG_ERROR):
-		print("[-] " + _msg)
+		exc_type, exc_obj, exc_tb = sys.exc_info()
+		if (exc_tb):
+			print("[-] " + _msg + "[{:d}]".format(exc_tb.tb_lineno))
+		else:
+			print("[-] " + _msg )
+			
 	elif (_type == MSG_WARN):
 		print("[!] " + _msg)
 	elif (_type == MSG_INFO):
@@ -1301,9 +1470,16 @@ def main(args):
 		vmf_factory = factory(args)
 		# Testing below
 		print("="*60)
-		vmf_factory.get_vmf_msg()
+		app_header = vmf_factory.get_vmf_msg()
+		if (args.debug):
+			vmf_factory.print_structure()
+			vmf_factory.print_header_binary()
+		
+		
 	except Exception as e:
-		print(e.message)		
+ 		exc_type, exc_value, exc_traceback = sys.exc_info()
+		traceback.print_tb(exc_traceback, file=sys.stdout)
+		print_msg(MSG_ERROR, e.message)		
 
 if __name__ == "__main__":
 	banner()
