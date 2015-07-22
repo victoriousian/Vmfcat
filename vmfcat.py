@@ -59,7 +59,23 @@ class Params:
             "cmd"       : "rcpt_unitnames",
             "help"      : """ List of variable size fields of character-coded identifiers for friendly units. """,
             "choices"   : []
+          },
+      "info_urns"       : {
+            "cmd"       : "info_urns",
+            "help"      : """List of 24-bit codes used to uniquely identify friendly units.""",
+            "choices"   : []
+          },
+      "info_unitnames"       : {
+            "cmd"       : "info_unitnames",
+            "help"      : """ List of variable size fields of character-coded identifiers for friendly units. """,
+            "choices"   : []
+          },
+      "umf"             : {
+            "cmd"       : "umf",
+            "choices"   : ["link16", "binary", "vmf", "nitfs", "rdm", "usmtf", "doi103", "xml-mtf", "xml-vmf"],
+            "help"      : """ Indicates the format of the message contained in the user data field."""
           }
+
     }
 
 
@@ -145,11 +161,11 @@ recp_addr_options.add_argument("--rcpt-unitnames",
 info_addr_options = parser.add_argument_group(
     "Information Address Group", "Fields of the information address group.")
 info_addr_options.add_argument("--info-urns",
-    dest="info_urns",
+    dest=Params.parameters["info_urns"]["cmd"],
     metavar="URNs",
     nargs="+",
     action="store",
-    help="Specify the URN of the reference message.")
+    help=Params.parameters["info_urns"]["help"])
 info_addr_options.add_argument("--info-units",
     dest="info_unitnames",
     metavar="UNITNAMES",
@@ -161,19 +177,11 @@ info_addr_options.add_argument("--info-units",
 # Message Handling Group Arguments
 msg_handling_options = parser.add_argument_group(
     "Message Handling Group", "Fields of the message handling group.")
-msg_handling_options.add_argument("--umf", 
-    dest="umf", 
+msg_handling_options.add_argument("--umf",
+    dest=Params.parameters["umf"]["cmd"],
     action="store",
-    choices=[
-        "link16", "binary", "vmf", 
-        "nitfs", "rdm", "usmtf", 
-        "doi103", "xml-mtf", "xml-vmf"
-    ],
-    help=
-    """
-        Indicates the format of the message contained in the 
-        user data field.
-    """)
+    choices=Params.parameters["umf"]["choices"],
+    help=Params.parameters["umf"]["help"])
 msg_handling_options.add_argument("--msg-version", 
     dest="messagevers", 
     action="store", 
@@ -569,6 +577,7 @@ MSG_ERROR   = 0x1
 MSG_WARN    = 0x2
 MSG_INFO    = 0x3
 
+CMD_SAVE = 'save'
 CMD_SET = 'set'
 CMD_SHOW = 'show'
 CMD_SEND = 'send'
@@ -1552,6 +1561,8 @@ def main(args):
 
                 elif (cmd.lower() == CMD_SEND):
                        print_msg(MSG_INFO, "Sending...")
+                elif (cmd.lower() == CMD_SAVE):
+                       print_msg(MSG_INFO, "Saving current config...")
                 elif (cmd.lower() == CMD_HELP):
                        param = tokens[1]
                        if (param in Params.__dict__.keys()):
