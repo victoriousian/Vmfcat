@@ -74,8 +74,87 @@ class Params:
             "cmd"       : "umf",
             "choices"   : ["link16", "binary", "vmf", "nitfs", "rdm", "usmtf", "doi103", "xml-mtf", "xml-vmf"],
             "help"      : """ Indicates the format of the message contained in the user data field."""
-          }
-
+          },
+      "messagevers"     : {
+            "cmd"       : "messagevers",
+            "choices"   : [],
+            "help"      : """Represents the version of the message standard contained in the user data field."""
+            },
+      "fad"             : {
+            "cmd"       : "fad",
+            "choices"   : ["netcon", "geninfo", "firesp", "airops", "intops", "landops","marops", "css", "specialops", "jtfopsctl", "airdef"],
+            "help"      : "Identifies the functional area of a specific VMF message using code words."
+            },
+      "msgnumber"       : {
+            "cmd"       : "msgnumber",
+            "choices"   : [],
+            "help"      : """Represents the number that identifies a specific VMF message within a functional area."""
+            },
+      "msgsubtype"      : {
+            "cmd"       : "msgsubtype",
+            "choices"   : [],
+            "help"      : """Represents a specific case within a VMF message, which depends on the UMF, FAD and message number."""
+            },
+      "filename"        : {
+            "cmd"       : "filename",
+            "choices"   : [],
+            "help"      : """Indicates the name of the computer file or data block contained  in the User Data portion of the application PDU."""
+            },
+      "msgsize"         : {
+            "cmd"       : "msgsize",
+            "choices"   : [],
+            "help"      : """Indicates the size(in bytes) of the associated message within the User Data field."""
+            },
+      "opind"           : {
+            "cmd"       : "opind",
+            "choices"   : ["op", "ex", "sim", "test"],
+            "help"      : "Indicates the operational function of the message."
+            },
+      "retransmission"  : {
+            "cmd"       : "retransmission",
+            "choices"   : [True, False],
+            "help"      : """Indicates whether a message is a retransmission."""
+            },
+      "msgprecedence"   : {
+            "cmd"       : "msgprecedence",
+            "choices"   : ["reserved", "critic", "flashover", "flash", "imm", "pri", "routine"],
+            "help"      : """Indicates relative precedence of a message."""
+            },
+      "classification"  : {
+            "cmd"       : "classification",
+            "choices"   : ["unclass", "conf", "secret", "topsecret"],
+            "help"      : """Security classification of the message."""
+            },
+      "releasemark"     : {
+            "cmd"       : "releasemark",
+            "choices"   : [],
+            "help"      : """Support the exchange of a list of up to 16 country codes with which the message can be release."""
+            },
+      "originatordtg"   : {
+            "cmd"       : "originatordtg",
+            "choices"   : [],
+            "help"      : """ Contains the date and time in Zulu Time that the message was prepared."""
+            },
+      "perishdtg"   : {
+            "cmd"       : "perishdtg",
+            "choices"   : [],
+            "help"      : """Provides the latest time the message is still of value."""
+            },
+      "ackmachine"      : {
+            "cmd"       : "ackmachine",
+            "choices"   : [True, False],
+            "help"      : """Indicates whether the originator of a machine requires a machine acknowledgement for the message."""
+            },
+      "ackop"           : {
+            "cmd"       : "ackop",
+            "choices"   : [True, False],
+            "help"      : """Indicates whether the originator of the message requires an acknowledgement for the message from the recipient."""
+            },
+      "reply"           : {
+            "cmd"       : "reply",
+            "choices"   : [True, False],
+            "help"      : """Indicates whether the originator of the message requires an operator reply to the message."""
+            }
     }
 
 
@@ -182,116 +261,80 @@ msg_handling_options.add_argument("--umf",
     action="store",
     choices=Params.parameters["umf"]["choices"],
     help=Params.parameters["umf"]["help"])
-msg_handling_options.add_argument("--msg-version", 
-    dest="messagevers", 
-    action="store", 
-    metavar="VERSION", 
-    type=int, 
-    help=
-    """
-        Represents the version of the message standard contained in 
-        the user data field.
-    """)
-msg_handling_options.add_argument("--fad", 
-    dest="fad", 
+msg_handling_options.add_argument("--msg-version",
+    dest=Params.parameters["messagevers"]["cmd"],
     action="store",
-    choices=[
-        "netcon", "geninfo", "firesp", 
-        "airops", "intops", "landops", 
-        "marops", "css", "specialops", 
-        "jtfopsctl", "airdef"
-    ],
-    help="Identifies the functional area of a specific VMF message using code words.")
-msg_handling_options.add_argument("--msg-number", 
-    dest="msgnumber", 
-    action="store", 
-    type=int, 
-    metavar="1-127",
-    help=
-    """
-        Represents the number that identifies a specific VMF message
-        within a functional area.
-    """)
-msg_handling_options.add_argument("--msg-subtype",
-    dest="msgsubtype",
+    metavar="VERSION",
+    type=int,
+    help=Params.parameters["messagevers"]["help"])
+msg_handling_options.add_argument("--fad",
+    dest=Params.parameters["fad"]["cmd"],
+    action="store",
+    choices=Params.parameters["fad"]["choices"],
+    help=Params.parameters["fad"]["help"])
+msg_handling_options.add_argument("--msg-number",
+    dest=Params.parameters["msgnumber"]["cmd"],
     action="store",
     type=int,
     metavar="1-127",
-    help=
-    """
-        Represents a specific case within a VMF message, which depends on
-        the UMF, FAD and message number.
-    """)
-msg_handling_options.add_argument("--filename", 
-    dest="filename", 
+    help=Params.parameters["msgnumber"]["help"])
+msg_handling_options.add_argument("--msg-subtype",
+    dest=Params.parameters["msgsubtype"]["cmd"],
     action="store",
-    help=
-    """
-        Indicates the name of the computer file or data block contained 
-        in the User Data portion of the application PDU.
-    """)
-msg_handling_options.add_argument("--msg-size", 
-    dest="msgsize", 
-    action="store", 
-    type=int, 
+    type=int,
+    metavar="1-127",
+    help=Params.parameters["msgsubtype"]["help"])
+msg_handling_options.add_argument("--filename",
+    dest=Params.parameters["filename"]["cmd"],
+    action="store",
+    help=Params.parameters["filename"]["help"])
+msg_handling_options.add_argument("--msg-size",
+    dest=Params.parameters["msgsize"]["cmd"],
+    action="store",
+    type=int,
     metavar="SIZE",
-    help=
-    """
-        Indicates the size (in bytes) of the associated message within
-        the User Data field.
-    """)
+    help=Params.parameters["msgsize"]["help"])
 
-msg_handling_options.add_argument("--opind", 
-    dest="opind", 
+msg_handling_options.add_argument("--opind",
+    dest=Params.parameters["opind"]["cmd"],
     action="store",
-    choices=["op", "ex", "sim", "test"],
-    help="Indicates the operational function of the message.")
+    choices=Params.parameters["opind"]["choices"],
+    help=Params.parameters["opind"]["help"])
 
-msg_handling_options.add_argument("--retrans", 
-    dest="retransmission", 
-    action="store_true", 
-    help="Indicates whether a message is a retransmission.")
+msg_handling_options.add_argument("--retrans",
+    dest=Params.parameters["retransmission"]["cmd"],
+    action="store_true",
+    help=Params.parameters["retransmission"]["help"])
 
-msg_handling_options.add_argument("--msg-prec", 
-    dest="msgprecedence", 
+msg_handling_options.add_argument("--msg-prec",
+    dest=Params.parameters["msgprecedence"]["cmd"],
     action="store",
-    choices=[
-        "reserved", "critic", "flashover", 
-        "flash", "imm", "pri", "routine"
-    ],
-    help="Indicates relative precedence of a message.")
+    choices=Params.parameters["msgprecedence"]["choices"],
+    help=Params.parameters["msgprecedence"]["help"])
 
 msg_handling_options.add_argument("--class",
-    dest="classification",
+    dest=Params.parameters["classification"]["cmd"],
     action="store",
     nargs="+",
-    choices=["unclass", "conf", "secret", "topsecret"],
-    help="Security classification of the message.")
+    choices=Params.parameters["classification"]["cmd"],
+    help=Params.parameters["classification"]["cmd"])
 
-msg_handling_options.add_argument("--release", 
-    dest="releasemark", 
-    action="store", 
+msg_handling_options.add_argument("--release",
+    dest=Params.parameters["releasemark"]["cmd"],
+    action="store",
     metavar="COUNTRIES",
-    help=
-    """
-        Support the exchange of a list of up to 16 country codes 
-        with which the message can be release.
-    """)
-msg_handling_options.add_argument("--orig-dtg", 
-    dest="originatordtg", 
-    action="store", 
-    metavar="YYYY-MM-DD HH:mm[:ss] [extension]", 
-    help=
-    """
-        Contains the date and time in Zulu Time that the 
-        message was prepared.
-    """)
-msg_handling_options.add_argument("--perish-dtg", 
-    dest="perishdtg", 
-    action="store", 
-    metavar="YYYY-MM-DD HH:mm[:ss]", 
-    help="Provides the latest time the message is still of value.")
+    help=Params.parameters["releasemark"]["help"])
 
+msg_handling_options.add_argument("--orig-dtg",
+    dest=Params.parameters["originatordtg"]["cmd"],
+    action="store",
+    metavar="YYYY-MM-DD HH:mm[:ss] [extension]",
+    help=Params.parameters["originatordtg"]["cmd"])
+msg_handling_options.add_argument("--perish-dtg",
+    dest=Params.parameters["perishdtg"]["cmd"],
+    action="store",
+    metavar="YYYY-MM-DD HH:mm[:ss]",
+    help=Params.parameters["perishdtg"]["cmd"])
 
 # =====================================================================================
 
@@ -299,30 +342,18 @@ msg_handling_options.add_argument("--perish-dtg",
 # Acknowledge Request Group Arguments
 ack_options = parser.add_argument_group(
     "Acknowledgement Request Group", "Options to request acknowledgement and replies.")
-ack_options.add_argument("--ack-machine", 
-    dest="ackmachine", 
-    action="store_true", 
-    help=
-    """
-        Indicates whether the originator of a machine requires a machine 
-        acknowledgement for the message.
-    """)
+ack_options.add_argument("--ack-machine",
+    dest=Params.parameters["ackmachine"]["cmd"],
+    action="store_true",
+    help=Params.parameters["ackmachine"]["help"])
 ack_options.add_argument("--ack-op",
-     dest="ackop", 
+     dest=Params.parameters["ackop"]["cmd"],
     action="store_true",
-    help=
-    """
-        Indicates whether the originator of the message requires an 
-        acknowledgement for the message from the recipient.
-    """)
-ack_options.add_argument("--reply", 
-    dest="reply", 
+    help=Params.parameters["ackop"]["help"])
+ack_options.add_argument("--reply",
+    dest=Params.parameters["reply"]["cmd"],
     action="store_true",
-    help=
-    """
-        Indicates whether the originator of the message requires 
-        an operator reply to the message.
-    """)
+    help=Params.parameters["reply"]["help"])
 # =====================================================================================
 
 # =====================================================================================
@@ -379,8 +410,6 @@ resp_options.add_argument("--reply-amp",
         Provide textual data an amplification of the recipient's
         reply to a message.
     """)
-
-
 
 # =====================================================================================
 
@@ -522,13 +551,13 @@ msg_sec_grp.add_argument("--pad-len",
         Defines the size, in octets, of the message security 
         padding field.
     """)
-msg_sec_grp.add_argument("--padding", 
-    dest="padding", 
-    action="store", 
+msg_sec_grp.add_argument("--padding",
+    dest="padding",
+    action="store",
     type=int,
     help=
     """
-        Necessary for a block encryption algorithm so the content 
+        Necessary for a block encryption algorithm so the content
         of the message is a multiple of the encryption block length.
     """)
 # =============================================================================
