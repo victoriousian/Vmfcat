@@ -39,6 +39,7 @@ __version__ = '.'.join(__version_info__)
 # Imports Statements
 import re
 import sys
+import json
 import argparse
 import traceback
 from Factory import *
@@ -723,8 +724,6 @@ class VmfShell(object):
 					else:
 						self.print_error("Usage: {s} <field> <value>".format(VmfShell.CMD_SET))
 				elif (cmd.lower() == VmfShell.CMD_HEADER):
-					#TODO: Implement
-					#self.print_error("Not implemented")
 					vmf_factory = Factory(Params)
 				elif (cmd.lower() == VmfShell.CMD_SEARCH):
 					keyword = ' '.join(tokens[1:]).lower()
@@ -732,6 +731,24 @@ class VmfShell(object):
 						help = Params.parameters[p]['help']
 						if (p.lower() == keyword or keyword in help.lower()):
 							self.print_success("{:s}: {:s}".format(p, help))
+				elif (cmd.lower() == VmfShell.CMD_SAVE):
+					if len(tokens) == 2:
+						file = tokens[1]
+						
+						tmpdict = {}
+						for param in Params.parameters.keys():
+							value = Params.__dict__[param]
+							tmpdict[param] = value
+							
+						with open(file, 'w') as f:
+							json.dump(tmpdict, f)
+							
+						self.print_success("Saved VMF message to {:s}.".format(file))
+					else:
+						self.print_error("Specify a file to save the configuration to.")
+						
+				elif (cmd.lower() == VmfShell.CMD_LOAD):
+					self.print_error("Not implemented.")					
 				else:
 					self.print_error("Unknown command {:s}.".format(cmd))
 			except Exception as e:
