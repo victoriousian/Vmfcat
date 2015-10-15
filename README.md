@@ -1,5 +1,11 @@
 # vmfcat
-Simple Variable Message Format (VMF) message generation and manipulation via command-line
+Simple Variable Message Format (VMF) message generation and manipulation via command-line. This program
+requires the Enum and bitstring packages, which can be installed with:
+
+```
+pip install Enum
+pip install bitstring
+```
 
 ```
 Copyright (C) 2015  Jonathan Racicot <jonathan.racicot@rmc.ca>

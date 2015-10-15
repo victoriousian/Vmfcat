@@ -27,6 +27,12 @@
 __version_info__ = ('0','1','0')
 __version__ = '.'.join(__version_info__)
 
+#//////////////////////////////////////////////////////////
+# Imports Statements
+from enum import Enum
+from bitstring import BitArray
+#//////////////////////////////////////////////////////////
+
 # =============================================================================
 # Global Variables
 
@@ -41,7 +47,7 @@ DEFAULT_GPI = ABSENT
 DEFAULT_GRI = 0
 
 TERMINATOR = 0x7E
-NO_STATEMENT        = 63
+NO_STATEMENT       = 63
 
 
 # =============================================================================
@@ -424,45 +430,45 @@ class Field(object):
 # =============================================================================
 # Datetime Group (DTG) Field Class
 # Represents a field containing a DTG value. 
-class dtg_field(field):
+class dtg_field(Field):
     has_extension = False
         
     def __init__(self, _name, _size=46, _value=0, _groupcode = 0, _repeatable=False, _extension=True, _index=0):
         super(dtg_field, self).__init__(_name, _size, _value, _groupcode, _repeatable, _index)
         self.has_extension=_extension
         self.fields = {
-            "year"  : field(
+            "year"  : Field(
                     _name="year", 
                     _size=7, 
                     _indicator=True,
                     _index=0),
-            "month" : field(
+            "month" : Field(
                     _name="month", 
                     _size=4, 
                     _indicator=True,
                     _index=1),
-            "day"   : field(
+            "day"   : Field(
                     _name="day", 
                     _size=5, 
                     _indicator=True,
                     _index=2),
-            "hour"  : field(
+            "hour"  : Field(
                     _name="hour", 
                     _size=5, 
                     _indicator=True,
                     _index=3),
-            "minute": field(
+            "minute": Field(
                     _name="minute", 
                     _size=6, 
                     _indicator=True,
                     _index=4),
-            "second": field(
+            "second": Field(
                     _name="second", 
                     _size=6, 
                     _value=NO_STATEMENT,
                     _indicator=True,
                     _index=5),
-            "ext"   : field(
+            "ext"   : Field(
                     _name="extension",
                     _size=12,
                     _index=6)

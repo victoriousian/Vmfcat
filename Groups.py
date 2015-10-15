@@ -27,6 +27,22 @@
 __version_info__ = ('0','1','0')
 __version__ = '.'.join(__version_info__)
 
+#//////////////////////////////////////////////////////////
+# Imports Statements
+from enum import Enum
+from bitstring import BitArray
+#//////////////////////////////////////////////////////////
+
+#//////////////////////////////////////////////////////////
+# Global Variables
+ABSENT  = 0x0
+PRESENT = 0x1
+
+DEFAULT_FPI = ABSENT
+DEFAULT_FRI = 0
+DEFAULT_GPI = ABSENT
+DEFAULT_GRI = 0
+
 CODE_GRP_HEADER     = "header"
 CODE_GRP_ORIGIN_ADDR    = "G1"
 CODE_GRP_RCPT_ADDR  = "G2"
@@ -45,7 +61,7 @@ CODE_GRP_KEY_TOKEN  = "G23"
 CODE_GRP_AUTH_A     = "G24"
 CODE_GRP_AUTH_B     = "G25"
 CODE_GRP_SEC_PAD    = "G26"
-
+#//////////////////////////////////////////////////////////
 
 # =============================================================================
 # Group Class

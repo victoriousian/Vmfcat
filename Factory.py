@@ -27,7 +27,12 @@
 __version_info__ = ('0','1','0')
 __version__ = '.'.join(__version_info__)
 
+#//////////////////////////////////////////////////////////
+# Imports Statements
+from Fields import *
+from Groups import *
 
+#//////////////////////////////////////////////////////////
 
 # =============================================================================
 # Factory Class
@@ -39,109 +44,109 @@ __version__ = '.'.join(__version_info__)
 class Factory:
 
     vmf_fields = {
-        "vmfversion"        : [field(
+        "vmfversion"    : [Field(
                         _name="Version",
                         _size=4,
                         _enumerator=version,
                         _groupcode=CODE_GRP_HEADER,
                         _indicator=True,
                         _index=0)],
-        "compress"      : [field(
+        "compress"      : [Field(
                         _name="Data Compression",
                         _size=2,
                         _enumerator=data_compression,
                         _groupcode=CODE_GRP_HEADER,
                         _index=1)],
-        "originator_urn"    : [field(
+        "originator_urn"    : [Field(
                         _name="Originator URN",
                         _size=24, 
                         _groupcode=CODE_GRP_ORIGIN_ADDR,
                         _index=0)],
-        "originator_unitname"   : [field(
+        "originator_unitname"   : [Field(
                         _name="Originator Unit Name", 
                         _size=448, 
                         _groupcode=CODE_GRP_ORIGIN_ADDR,
                         _index=0)],
-        "rcpt_urns"     : [field(
+        "rcpt_urns"     : [Field(
                         _name="Recipient URN", 
                         _size=24, 
                         _groupcode=CODE_GRP_RCPT_ADDR,
                         _index=0)],
-        "rcpt_unitnames"    : [field(
+        "rcpt_unitnames"    : [Field(
                         _name="Recipient Unit Name", 
                         _size=448, 
                         _groupcode=CODE_GRP_RCPT_ADDR,
                         _index=0)],
-        "info_urns"     : [field(
+        "info_urns"     : [Field(
                         _name="Information URN", 
                         _size=24, 
                         _groupcode=CODE_GRP_INFO_ADDR,
                         _index=0)],
-        "info_unitnames"    : [field(
+        "info_unitnames"    : [Field(
                         _name="Information Unit Name", 
                         _size=448, 
                         _groupcode=CODE_GRP_INFO_ADDR,
                         _index=0)],
-        "umf"           : [field(
+        "umf"           : [Field(
                         _name="UMF", 
                         _size=4, 
                         _enumerator=umf,
                         _groupcode=CODE_GRP_MSG_HAND,
                         _index=0)],
-        "messagevers"       : [field(
+        "messagevers"       : [Field(
                         _name="Message Standard Version", 
                         _size=4, 
                         _groupcode=CODE_GRP_MSG_HAND,
                         _index=1)],
-        "fad"           : [field(
+        "fad"           : [Field(
                         _name="FAD", 
                         _size=4,
                         _enumerator=fad_codes, 
                         _groupcode=CODE_GRP_VMF_MSG_IDENT,
                         _index=0)],
-        "msgnumber"     : [field(
+        "msgnumber"     : [Field(
                         _name="Message Number",
                         _size=7,
                         _groupcode=CODE_GRP_VMF_MSG_IDENT,
                         _index=1)],
-        "msgsubtype"        : [field(
+        "msgsubtype"        : [Field(
                         _name="Message Subtype",
                         _size=7,
                         _groupcode=CODE_GRP_VMF_MSG_IDENT,
                         _index=2)],
-        "filename"      : [field(
+        "filename"      : [Field(
                         _name="File name",
                         _size=448,
                         _groupcode=CODE_GRP_MSG_HAND,
                         _index=3)],
-        "msgsize"       : [field(
+        "msgsize"       : [Field(
                         _name="Message Size",
                         _size=20,
                         _groupcode=CODE_GRP_MSG_HAND,
                         _index=4)],
-        "opind"         : [field(
+        "opind"         : [Field(
                         _name="Operation Indicator",
                         _size=2,
                         _groupcode=CODE_GRP_MSG_HAND,
                         _index=5)],
-        "retransmission"    : [field(
+        "retransmission"    : [Field(
                         _name="Retransmit Indicator",
                         _size=1,
                         _groupcode=CODE_GRP_MSG_HAND,
                         _index=6)],
-        "msgprecedence"     : [field(
+        "msgprecedence"     : [Field(
                         _name="Message Precedence Code",
                         _size=3,
                         _enumerator=precedence,
                         _groupcode=CODE_GRP_MSG_HAND,
                         _index=7)],
-        "classification"    : [field(
+        "classification"    : [Field(
                         _name="Security Classification",
                         _size=2,
                         _enumerator=classification,
                         _groupcode=CODE_GRP_MSG_HAND,
                         _index=8)],
-        "releasemark"       : [field(
+        "releasemark"       : [Field(
                         _name="Control/Release Marking",
                         _size=9,
                         _repeatable=True,
@@ -156,19 +161,19 @@ class Factory:
                         _groupcode=CODE_GRP_PERISH_DTG,
                         _extension=False,
                         _index=11)],
-        "ackmachine"    : [field(
+        "ackmachine"    : [Field(
                         _name="Machine Acknowledge",
                         _size=1,
                         _groupcode=CODE_GRP_ACK,
                         _indicator=True,
                         _index=1)],
-        "ackop"         : [field(
+        "ackop"         : [Field(
                         _name="Operator Acknowledge",
                         _size=1,
                         _groupcode=CODE_GRP_ACK,
                         _indicator=True,
                         _index=2)],
-        "reply"         : [field(
+        "reply"         : [Field(
                         _name="Operator Reply Request",
                         _size=1,
                         _groupcode=CODE_GRP_ACK,
@@ -178,36 +183,36 @@ class Factory:
                         _name="DTG of Ack'd Msg.",
                         _groupcode=CODE_GRP_RESPONSE,
                         _index=12)],
-        "rccode"        : [field(
+        "rccode"        : [Field(
                         _name="R/C",
                         _size=3,
                         _enumerator=rc_codes,
                         _groupcode=CODE_GRP_RESPONSE,
                         _indicator=True,
                         _index=13)],
-        "cantco"        : [field(
+        "cantco"        : [Field(
                         _name="Cantco Reason Code",
                         _size=3,
                         _enumerator=cantco_reasons,
                         _groupcode=CODE_GRP_RESPONSE,
                         _index=14)],
-        "cantpro"       : [field(
+        "cantpro"       : [Field(
                         _name="Cantpro Reason Code",
                         _size=6,
                         _enumerator=cantpro_reasons,
                         _groupcode=CODE_GRP_RESPONSE,
                         _index=15)],
-        "replyamp"      : [field(
+        "replyamp"      : [Field(
                         _name="Reply Amplification",
                         _size=350,
                         _groupcode=CODE_GRP_RESPONSE,
                         _index=16)],
-        "ref_urn"       : [field(
+        "ref_urn"       : [Field(
                         _name="Reference Message URN",
                         _size=24,
                         _groupcode=CODE_GRP_REF,
                         _index=0)],
-        "ref_unitname"      : [field(
+        "ref_unitname"      : [Field(
                         _name="Reference Message Unit Name",
                         _size=448,
                         _groupcode=CODE_GRP_REF,
@@ -216,86 +221,86 @@ class Factory:
                         _name="Reference Message DTG",
                         _groupcode=CODE_GRP_REF,
                         _index=1)],
-        "secparam"      : [field(
+        "secparam"      : [Field(
                         _name="Security Parameters",
                         _size=4,
                         _groupcode=CODE_GRP_MSG_SECURITY,
                         _indicator=True,
                         _index=0)],
-        "keymatlen"     : [field(
+        "keymatlen"     : [Field(
                         _name="Keying Material Id Length",
                         _size=3,
                         _groupcode=CODE_GRP_KEYMAT,
                         _indicator=True,
                         _index=0)],
-        "keymatid"      : [field(
+        "keymatid"      : [Field(
                         _name="Keying Material Id",
                         _size=64,
                         _groupcode=CODE_GRP_KEYMAT,
                         _indicator=True,
                         _index=1)],
-        "crypto_init_len"   : [field(
+        "crypto_init_len"   : [Field(
                         _name="Crypto Initialization Length",
                         _size=4,
                         _groupcode=CODE_GRP_CRYPTO_INIT,
                         _indicator=True,
                         _index=0)],
-        "crypto_init"       : [field(
+        "crypto_init"       : [Field(
                         _name="Crypto Initialization",
                         _size=1024,
                         _groupcode=CODE_GRP_CRYPTO_INIT,
                         _indicator=True,
                         _index=1)],
-        "keytok_len"        : [field(
+        "keytok_len"        : [Field(
                         _name="Key Token Length",
                         _size=8,
                         _groupcode=CODE_GRP_KEY_TOKEN,
                         _indicator=True,
                         _index=0)],
-        "keytok"        : [field(
+        "keytok"        : [Field(
                         _name="Key Token",
                         _size=16384,
                         _groupcode=CODE_GRP_KEY_TOKEN,
                         _indicator=True,
                         _repeatable=True,
                         _index=1)],
-        "autha_len"     : [field(
+        "autha_len"     : [Field(
                         _name="Auth. Data Length (A)",
                         _size=7,
                         _groupcode=CODE_GRP_AUTH_A,
                         _indicator=True,
                         _index=0)],
-        "autha"         : [field(
+        "autha"         : [Field(
                         _name="Auth Data (A)",
                         _size=8192,
                         _groupcode=CODE_GRP_AUTH_A,
                         _indicator=True,
                         _index=1)],
-        "authb_len"     : [field(
+        "authb_len"     : [Field(
                         _name="Auth. Data Length (B)",
                         _size=7,
                         _groupcode=CODE_GRP_AUTH_B,
                         _indicator=True,
                         _index=0)],
-        "authb"         : [field(
+        "authb"         : [Field(
                         _name="Auth Data (B)",
                         _size=8192,
                         _groupcode=CODE_GRP_AUTH_B,
                         _indicator=True,
                         _index=1)],
-        "acksigned"     : [field(
+        "acksigned"     : [Field(
                         _name="Signed Acknowledge Indicator",
                         _size=1,
                         _groupcode=CODE_GRP_MSG_SECURITY,
                         _indicator=True,
                         _index=6)],
-        "pad_len"       : [field(
+        "pad_len"       : [Field(
                         _name="Message Security Padding Length",
                         _size=8,
                         _groupcode=CODE_GRP_SEC_PAD,
                         _indicator=True,
                         _index=0)],
-        "padding"       : [field(
+        "padding"       : [Field(
                         _name="Message Security Padding",
                         _size=2040,
                         _groupcode=CODE_GRP_SEC_PAD,
@@ -304,83 +309,83 @@ class Factory:
     }
 
     vmf_groups = {
-        CODE_GRP_HEADER     : [group(
+        CODE_GRP_HEADER     : [Group(
                         _name="Application Header",
                         _isroot=True)],
-        CODE_GRP_ORIGIN_ADDR    : [group(
+        CODE_GRP_ORIGIN_ADDR    : [Group(
                         _name="Originator Address",
                         _parent=CODE_GRP_HEADER,
                         _index=2)],
-        CODE_GRP_RCPT_ADDR  : [group(
+        CODE_GRP_RCPT_ADDR  : [Group(
                         _name="Recipient Address Group",
                         _is_repeatable=True,
                         _max_repeat=16,
                         _parent=CODE_GRP_HEADER,
                         _index=3)],
-        CODE_GRP_INFO_ADDR  : [group(
+        CODE_GRP_INFO_ADDR  : [Group(
                         _name="Information Address Group",
                         _is_repeatable=True,
                         _max_repeat=16,
                         _parent=CODE_GRP_HEADER,
                         _index=4)],
-        CODE_GRP_MSG_HAND   : [group(
+        CODE_GRP_MSG_HAND   : [Group(
                         _name="Message Handling Group",
                         _is_repeatable=True,
                         _max_repeat=16,
                         _parent=CODE_GRP_HEADER,
                         _index=5+5*ENABLE_FUTURE_GRP)],
 
-        CODE_GRP_VMF_MSG_IDENT  : [group(
+        CODE_GRP_VMF_MSG_IDENT  : [Group(
                         _name="VMF Message Identification",
                         _parent=CODE_GRP_MSG_HAND,
                         _index=2)],
-        CODE_GRP_ORIGIN_DTG : [group(
+        CODE_GRP_ORIGIN_DTG : [Group(
                         _name="Originator DTG",
                         _parent=CODE_GRP_MSG_HAND,
                         _index=10)],
-        CODE_GRP_PERISH_DTG : [group(
+        CODE_GRP_PERISH_DTG : [Group(
                         _name="Perishability DTG",
                         _parent=CODE_GRP_MSG_HAND,
                         _index=11)],
-        CODE_GRP_ACK        : [group(
+        CODE_GRP_ACK        : [Group(
                         _name="Acknowledgement Req. Group",
                         _parent=CODE_GRP_MSG_HAND,
                         _index=12)],
-        CODE_GRP_RESPONSE   : [group(
+        CODE_GRP_RESPONSE   : [Group(
                         _name="Response Data Group",
                         _parent=CODE_GRP_MSG_HAND,
                         _index=13)],
-        CODE_GRP_REF        : [group(
+        CODE_GRP_REF        : [Group(
                         _name="Reference Message Data Group",
                         _is_repeatable=True,
                         _max_repeat=4,
                         _parent=CODE_GRP_MSG_HAND,
                         _index=14)],
-        CODE_GRP_MSG_SECURITY   : [group(
+        CODE_GRP_MSG_SECURITY   : [Group(
                         _name="Message Security Group",
                         _parent=CODE_GRP_MSG_HAND,
                         _index=15+5*ENABLE_FUTURE_GRP)],
-        CODE_GRP_KEYMAT     : [group(
+        CODE_GRP_KEYMAT     : [Group(
                         _name="Keying Material Group",
                         _parent=CODE_GRP_MSG_SECURITY,
                         _index=1)],
-        CODE_GRP_CRYPTO_INIT    : [group(
+        CODE_GRP_CRYPTO_INIT    : [Group(
                         _name="Crypto. Initialization Group",
                         _parent=CODE_GRP_MSG_SECURITY,
                         _index=2)],
-        CODE_GRP_KEY_TOKEN  : [group(
+        CODE_GRP_KEY_TOKEN  : [Group(
                         _name="Key Token Group",
                         _parent=CODE_GRP_MSG_SECURITY,
                         _index=3)],
-        CODE_GRP_AUTH_A     : [group(
+        CODE_GRP_AUTH_A     : [Group(
                         _name="Authentication Group (A)",
                         _parent=CODE_GRP_MSG_SECURITY,
                         _index=4)],
-        CODE_GRP_AUTH_B     : [group(
+        CODE_GRP_AUTH_B     : [Group(
                         _name="Authentication Group (B)",
                         _parent=CODE_GRP_MSG_SECURITY,
                         _index=5)],
-        CODE_GRP_SEC_PAD    : [group(
+        CODE_GRP_SEC_PAD    : [Group(
                         _name="Message Security Padding",
                         _parent=CODE_GRP_MSG_SECURITY,
                         _index=7)]
