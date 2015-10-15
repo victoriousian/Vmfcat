@@ -41,7 +41,7 @@ import re
 import sys
 import argparse
 import traceback
-import Factory
+from Factory import *
 #//////////////////////////////////////////////////////////
 
 
@@ -725,7 +725,7 @@ class VmfShell(object):
 				elif (cmd.lower() == VmfShell.CMD_HEADER):
 					#TODO: Implement
 					#self.print_error("Not implemented")
-					vmf_factory = factory(Params)
+					vmf_factory = Factory(Params)
 				elif (cmd.lower() == VmfShell.CMD_SEARCH):
 					keyword = ' '.join(tokens[1:]).lower()
 					for p in Params.parameters.keys():
