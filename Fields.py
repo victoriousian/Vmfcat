@@ -31,20 +31,13 @@ __version__ = '.'.join(__version_info__)
 # Imports Statements
 from enum import Enum
 from bitstring import BitArray
+from Elements import *
 #//////////////////////////////////////////////////////////
 
 # =============================================================================
 # Global Variables
 
 ENABLE_FUTURE_GRP = 0
-
-ABSENT  = 0x0
-PRESENT = 0x1
-
-DEFAULT_FPI = ABSENT
-DEFAULT_FRI = 0
-DEFAULT_GPI = ABSENT
-DEFAULT_GRI = 0
 
 TERMINATOR = 0x7E
 NO_STATEMENT       = 63
@@ -358,28 +351,21 @@ class Params:
 # =============================================================================
 # Field Class
 # Contains common properties to VMF fields 
-class Field(object):
-	fpi = DEFAULT_FPI
-	fri = DEFAULT_FRI
-	is_repeatable = False
-	is_indicator = False
-	size = 0
-	name = ""
-	value = 0
-	format_str = ""
-	grp_code = ""
-	enumerator = None
-	index = 0
+class Field(HeaderElement):
 
-	def __init__(self, _name, _size, _value=0, _groupcode = 0, _repeatable=False, _indicator=False, _enumerator=None, _index=0):
-		self.name = _name
+	def __init__(self, _name, _size, _value=0, _groupcode = 0, 
+		_repeatable=False, _max_repeat=0, _indicator=False, 
+		_enumerator=None, _index=0):
+		
+		super(Field, self).__init__(_name, _repeatable, _max_repeat, _index)
+		
+		self.pi = DEFAULT_FPI
+		self.ri = DEFAULT_FRI
 		self.size = _size
 		self.value = _value
 		self.grp_code = _groupcode
-		self.is_repeatable = _repeatable
 		self.is_indicator = _indicator
 		self.enumerator = _enumerator
-		self.index = _index
 		self.format_str = "{:#0" + str(self.size+2) + "b}"
 
 	def __repr__(self):
@@ -394,7 +380,7 @@ class Field(object):
 			raise Exception("Provided comparision item must be an integer.")
 
 	def enable_and_set(self, _value):
-		self.fpi = PRESENT
+		self.pi = PRESENT
 		self.value = _value
 
 	def get_value_from_dict(self, _key, _dict):
@@ -417,15 +403,15 @@ class Field(object):
 				b.append("{:#03b}".format(field_value))
 			return b
 
-		b.append("{:#03b}".format(self.fpi))
-		if (self.fpi == PRESENT):
+		b.append("{:#03b}".format(self.pi))
+		if (self.pi == PRESENT):
 			field_value = self.value
 			if (self.enumerator):
 				field_value = self.get_value_from_dict(self.value, self.enumerator)
 			if (isinstance(field_value, int)):
 				if (self.is_repeatable):
 					b.append("{:#03b}".format(self.fri))
-				if (self.fpi == PRESENT or self.is_indicator):
+				if (self.pi == PRESENT or self.is_indicator):
 					b.append(self.format_str.format(field_value))
 		return b
         #else:
@@ -485,7 +471,7 @@ class dtg_field(Field):
         #Expected format: YYYY-MM-DD HH:mm[:ss] [extension]"
         self.value = _value
         if (_value):
-            self.fpi = PRESENT
+            self.pi = PRESENT
             date_items = _value.split(' ')
 
             if (len(date_items) == 2 or len(date_items) == 3):

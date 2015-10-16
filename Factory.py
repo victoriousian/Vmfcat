@@ -50,267 +50,267 @@ MSG_DEBUG    = 0x4
 class Factory(object):
 
 	vmf_fields = {
-		"vmfversion"    : [Field(
+		"vmfversion"    : Field(
 						_name="Version",
 						_size=4,
 						_enumerator=version,
 						_groupcode=CODE_GRP_HEADER,
 						_indicator=True,
-						_index=0)],
-		"compress"      : [Field(
+						_index=0),
+		"compress"      : Field(
 						_name="Data Compression",
 						_size=2,
 						_enumerator=data_compression,
 						_groupcode=CODE_GRP_HEADER,
-						_index=1)],
-		"originator_urn"    : [Field(
+						_index=1),
+		"originator_urn"    : Field(
 						_name="Originator URN",
 						_size=24, 
 						_groupcode=CODE_GRP_ORIGIN_ADDR,
-						_index=0)],
-		"originator_unitname"   : [Field(
+						_index=0),
+		"originator_unitname"   : Field(
 						_name="Originator Unit Name", 
 						_size=448, 
 						_groupcode=CODE_GRP_ORIGIN_ADDR,
-						_index=0)],
-		"rcpt_urns"     : [Field(
+						_index=0),
+		"rcpt_urns"     : Field(
 						_name="Recipient URN", 
 						_size=24, 
 						_groupcode=CODE_GRP_RCPT_ADDR,
-						_index=0)],
-		"rcpt_unitnames"    : [Field(
+						_index=0),
+		"rcpt_unitnames"    : Field(
 						_name="Recipient Unit Name", 
 						_size=448, 
 						_groupcode=CODE_GRP_RCPT_ADDR,
-						_index=0)],
-		"info_urns"     : [Field(
+						_index=0),
+		"info_urns"     : Field(
 						_name="Information URN", 
 						_size=24, 
 						_groupcode=CODE_GRP_INFO_ADDR,
-						_index=0)],
-		"info_unitnames"    : [Field(
+						_index=0),
+		"info_unitnames"    : Field(
 						_name="Information Unit Name", 
 						_size=448, 
 						_groupcode=CODE_GRP_INFO_ADDR,
-						_index=0)],
-		"umf"           : [Field(
+						_index=0),
+		"umf"           : Field(
 						_name="UMF", 
 						_size=4, 
 						_enumerator=umf,
 						_groupcode=CODE_GRP_MSG_HAND,
-						_index=0)],
-		"messagevers"       : [Field(
+						_index=0),
+		"messagevers"       : Field(
 						_name="Message Standard Version", 
 						_size=4, 
 						_groupcode=CODE_GRP_MSG_HAND,
-						_index=1)],
-		"fad"           : [Field(
+						_index=1),
+		"fad"           : Field(
 						_name="FAD", 
 						_size=4,
 						_enumerator=fad_codes, 
 						_groupcode=CODE_GRP_VMF_MSG_IDENT,
-						_index=0)],
-		"msgnumber"     : [Field(
+						_index=0),
+		"msgnumber"     : Field(
 						_name="Message Number",
 						_size=7,
 						_groupcode=CODE_GRP_VMF_MSG_IDENT,
-						_index=1)],
-		"msgsubtype"        : [Field(
+						_index=1),
+		"msgsubtype"        : Field(
 						_name="Message Subtype",
 						_size=7,
 						_groupcode=CODE_GRP_VMF_MSG_IDENT,
-						_index=2)],
-		"filename"      : [Field(
+						_index=2),
+		"filename"      : Field(
 						_name="File name",
 						_size=448,
 						_groupcode=CODE_GRP_MSG_HAND,
-						_index=3)],
-		"msgsize"       : [Field(
+						_index=3),
+		"msgsize"       : Field(
 						_name="Message Size",
 						_size=20,
 						_groupcode=CODE_GRP_MSG_HAND,
-						_index=4)],
-		"opind"         : [Field(
+						_index=4),
+		"opind"         : Field(
 						_name="Operation Indicator",
 						_size=2,
 						_groupcode=CODE_GRP_MSG_HAND,
-						_index=5)],
-		"retransmission"    : [Field(
+						_index=5),
+		"retransmission"    : Field(
 						_name="Retransmit Indicator",
 						_size=1,
 						_groupcode=CODE_GRP_MSG_HAND,
-						_index=6)],
-		"msgprecedence"     : [Field(
+						_index=6),
+		"msgprecedence"     : Field(
 						_name="Message Precedence Code",
 						_size=3,
 						_enumerator=precedence,
 						_groupcode=CODE_GRP_MSG_HAND,
-						_index=7)],
-		"classification"    : [Field(
+						_index=7),
+		"classification"    : Field(
 						_name="Security Classification",
 						_size=2,
 						_enumerator=classification,
 						_groupcode=CODE_GRP_MSG_HAND,
-						_index=8)],
-		"releasemark"       : [Field(
+						_index=8),
+		"releasemark"       : Field(
 						_name="Control/Release Marking",
 						_size=9,
 						_repeatable=True,
 						_groupcode=CODE_GRP_MSG_HAND,
-						_index=9)],
+						_index=9),
 		"originatordtg"     : [dtg_field(
 						_name="Originator DTG",
 						_groupcode=CODE_GRP_ORIGIN_DTG,
-						_index=10)],
+						_index=10),
 		"perishdtg"     : [dtg_field(
 						_name="Perishability DTG",
 						_groupcode=CODE_GRP_PERISH_DTG,
 						_extension=False,
-						_index=11)],
-		"ackmachine"    : [Field(
+						_index=11),
+		"ackmachine"    : Field(
 						_name="Machine Acknowledge",
 						_size=1,
 						_groupcode=CODE_GRP_ACK,
 						_indicator=True,
-						_index=1)],
-		"ackop"         : [Field(
+						_index=1),
+		"ackop"         : Field(
 						_name="Operator Acknowledge",
 						_size=1,
 						_groupcode=CODE_GRP_ACK,
 						_indicator=True,
-						_index=2)],
-		"reply"         : [Field(
+						_index=2),
+		"reply"         : Field(
 						_name="Operator Reply Request",
 						_size=1,
 						_groupcode=CODE_GRP_ACK,
 						_indicator=True,
-						_index=3)],
+						_index=3),
 		"ackdtg"        : [dtg_field(
 						_name="DTG of Ack'd Msg.",
 						_groupcode=CODE_GRP_RESPONSE,
-						_index=12)],
-		"rccode"        : [Field(
+						_index=12),
+		"rccode"        : Field(
 						_name="R/C",
 						_size=3,
 						_enumerator=rc_codes,
 						_groupcode=CODE_GRP_RESPONSE,
 						_indicator=True,
-						_index=13)],
-		"cantco"        : [Field(
+						_index=13),
+		"cantco"        : Field(
 						_name="Cantco Reason Code",
 						_size=3,
 						_enumerator=cantco_reasons,
 						_groupcode=CODE_GRP_RESPONSE,
-						_index=14)],
-		"cantpro"       : [Field(
+						_index=14),
+		"cantpro"       : Field(
 						_name="Cantpro Reason Code",
 						_size=6,
 						_enumerator=cantpro_reasons,
 						_groupcode=CODE_GRP_RESPONSE,
-						_index=15)],
-		"replyamp"      : [Field(
+						_index=15),
+		"replyamp"      : Field(
 						_name="Reply Amplification",
 						_size=350,
 						_groupcode=CODE_GRP_RESPONSE,
-						_index=16)],
-		"ref_urn"       : [Field(
+						_index=16),
+		"ref_urn"       : Field(
 						_name="Reference Message URN",
 						_size=24,
 						_groupcode=CODE_GRP_REF,
-						_index=0)],
-		"ref_unitname"      : [Field(
+						_index=0),
+		"ref_unitname"      : Field(
 						_name="Reference Message Unit Name",
 						_size=448,
 						_groupcode=CODE_GRP_REF,
-						_index=0)],
+						_index=0),
 		"refdtg"        : [dtg_field(
 						_name="Reference Message DTG",
 						_groupcode=CODE_GRP_REF,
-						_index=1)],
-		"secparam"      : [Field(
+						_index=1),
+		"secparam"      : Field(
 						_name="Security Parameters",
 						_size=4,
 						_groupcode=CODE_GRP_MSG_SECURITY,
 						_indicator=True,
-						_index=0)],
-		"keymatlen"     : [Field(
+						_index=0),
+		"keymatlen"     : Field(
 						_name="Keying Material Id Length",
 						_size=3,
 						_groupcode=CODE_GRP_KEYMAT,
 						_indicator=True,
-						_index=0)],
-		"keymatid"      : [Field(
+						_index=0),
+		"keymatid"      : Field(
 						_name="Keying Material Id",
 						_size=64,
 						_groupcode=CODE_GRP_KEYMAT,
 						_indicator=True,
-						_index=1)],
-		"crypto_init_len"   : [Field(
+						_index=1),
+		"crypto_init_len"   : Field(
 						_name="Crypto Initialization Length",
 						_size=4,
 						_groupcode=CODE_GRP_CRYPTO_INIT,
 						_indicator=True,
-						_index=0)],
-		"crypto_init"       : [Field(
+						_index=0),
+		"crypto_init"       : Field(
 						_name="Crypto Initialization",
 						_size=1024,
 						_groupcode=CODE_GRP_CRYPTO_INIT,
 						_indicator=True,
-						_index=1)],
-		"keytok_len"        : [Field(
+						_index=1),
+		"keytok_len"        : Field(
 						_name="Key Token Length",
 						_size=8,
 						_groupcode=CODE_GRP_KEY_TOKEN,
 						_indicator=True,
-						_index=0)],
-		"keytok"        : [Field(
+						_index=0),
+		"keytok"        : Field(
 						_name="Key Token",
 						_size=16384,
 						_groupcode=CODE_GRP_KEY_TOKEN,
 						_indicator=True,
 						_repeatable=True,
-						_index=1)],
-		"autha_len"     : [Field(
+						_index=1),
+		"autha_len"     : Field(
 						_name="Auth. Data Length (A)",
 						_size=7,
 						_groupcode=CODE_GRP_AUTH_A,
 						_indicator=True,
-						_index=0)],
-		"autha"         : [Field(
+						_index=0),
+		"autha"         : Field(
 						_name="Auth Data (A)",
 						_size=8192,
 						_groupcode=CODE_GRP_AUTH_A,
 						_indicator=True,
-						_index=1)],
-		"authb_len"     : [Field(
+						_index=1),
+		"authb_len"     : Field(
 						_name="Auth. Data Length (B)",
 						_size=7,
 						_groupcode=CODE_GRP_AUTH_B,
 						_indicator=True,
-						_index=0)],
-		"authb"         : [Field(
+						_index=0),
+		"authb"         : Field(
 						_name="Auth Data (B)",
 						_size=8192,
 						_groupcode=CODE_GRP_AUTH_B,
 						_indicator=True,
-						_index=1)],
-		"acksigned"     : [Field(
+						_index=1),
+		"acksigned"     : Field(
 						_name="Signed Acknowledge Indicator",
 						_size=1,
 						_groupcode=CODE_GRP_MSG_SECURITY,
 						_indicator=True,
-						_index=6)],
-		"pad_len"       : [Field(
+						_index=6),
+		"pad_len"       : Field(
 						_name="Message Security Padding Length",
 						_size=8,
 						_groupcode=CODE_GRP_SEC_PAD,
 						_indicator=True,
-						_index=0)],
-		"padding"       : [Field(
+						_index=0),
+		"padding"       : Field(
 						_name="Message Security Padding",
 						_size=2040,
 						_groupcode=CODE_GRP_SEC_PAD,
-						_index=1)]
+						_index=1)
 	}
 
 	vmf_groups = {
@@ -469,6 +469,33 @@ class Factory(object):
 				return value
 		return None
 
+	def new_message(self, _args):
+	
+		new_message = Message()
+	
+		# Iterate thru the parameters provided by the user to
+		# create the message object.
+		for field_name, field_value in _args.__dict__.items():
+			# Validate the field given
+			if (field_value != None and field_name in new_message.header.fields.keys()):
+				# Get the field to create, and create a copy
+				# from the dictionary.
+				vmf_field_name = new_message.header[field_name].name
+				vmf_field_value = new_message.header[field_name].value 
+				vmf_field_group = new_message.header[field_name].grp_code
+				new_field = new_message.header[field_name]
+				new_field.enable_and_set(vmf_field_value)
+				new_message.header[vmf_field_name] = new_field
+				vmf_group = new_message.header[vmf_field_group]
+				vmf_group.append_field(new_field)
+				
+		for (code, group) in new_message.groups.iteritems():
+			parent_group = group.parent_group
+			if (not parent_group is None):
+				new_message.header[parent_group].fields.append(group)
+				#self.print_msg(MSG_DEBUG, "Added '{:s}' child group to '{:s}'.".format(g_array[i].name, parent_group))
+		return new_message
+				
 	def get_vmf_msg(self):
 		"""
 			Creates a new VMF messages based on the parameters
