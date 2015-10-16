@@ -470,8 +470,16 @@ class Factory(object):
 		return None
 
 	def get_vmf_msg(self):
+		"""
+		
+		"""
 		self.print_msg(MSG_DEBUG, "Creating VMF message object...")
 		self.print_msg(MSG_DEBUG, "Adding fields to groups...")
+		
+		for grp in self.vmf_groups:	
+			self.vmf_groups[grp][0].clear_fields()
+			#grp.clear_fields()
+		
 		for (f_name, f_array) in self.vmf_fields.iteritems():
 			i = 0
 			group_code = f_array[i].grp_code

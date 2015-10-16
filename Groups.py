@@ -105,13 +105,15 @@ class Group(object):
     def set_gri(self, _value):
         self.gri = _value
 
+    def clear_fields(self):
+        self.fields = []
+		
     def append_field(self, _field):
-        #TODO toggle GPI if field is indicator or FPI ==- present
-        #doesn't work...
         if (_field.fpi == PRESENT):
             self.gpi = PRESENT
         self.fields.append(_field)
 
+		
     def get_bit_array(self):
 		b = BitArray()
 		b.append("{:#03b}".format(self.gpi))
