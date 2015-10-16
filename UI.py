@@ -43,6 +43,7 @@ import json
 import argparse
 import traceback
 from Factory import *
+from Logger import *
 #//////////////////////////////////////////////////////////
 
 
@@ -661,14 +662,22 @@ class VmfShell(object):
 	PROMPT = "<<< "
 
 	def __init__(self, _output=sys.stdout):
+		"""
+			Initializes the user interface by defining a Logger object
+			and defining the standard output.
+		"""
 		self.output = _output
+		self.logger = Logger(_output, _debug=True)
 
 	def start(self):
 		"""
-
+			Starts the main loop of the interactive shell.
 		"""
+		
+		# Command entered by the user
 		cmd = ""
-		self.print_info("Type 'help' to show a list of available commands.")
+		self.logger.print_info("Type 'help' to show a list of available commands.")
+		
 		while (cmd.lower() != VmfShell.CMD_QUIT):
 			try:
 				self.output.write(VmfShell.PROMPT)
@@ -679,58 +688,76 @@ class VmfShell(object):
 					pass
 				elif (cmd.lower() == VmfShell.CMD_HELP):
 					if (len(tokens) == 1):
-						self.print_info("{:s} <field>|all".format(VmfShell.CMD_SHOW))
-						self.print_info("{:s} <field> <value>".format(VmfShell.CMD_SET))
-						self.print_info("{:s}".format(VmfShell.CMD_HEADER))
-						self.print_info("{:s} <field>".format(VmfShell.CMD_HELP))
-						self.print_info("{:s} <field>".format(VmfShell.CMD_SEARCH))
-						self.print_info("{:s}".format(VmfShell.CMD_QUIT))
+						self.logger.print_info("{:s} <field>|all".format(VmfShell.CMD_SHOW))
+						self.logger.print_info("{:s} <field> <value>".format(VmfShell.CMD_SET))
+						self.logger.print_info("{:s}".format(VmfShell.CMD_HEADER))
+						self.logger.print_info("{:s} <field>".format(VmfShell.CMD_HELP))
+						self.logger.print_info("{:s} <field>".format(VmfShell.CMD_SEARCH))
+						self.logger.print_info("{:s}".format(VmfShell.CMD_QUIT))
 					else:
 						param = tokens[1]
 						if (param in Params.__dict__.keys()):
 							help_msg = Params.parameters[param]['help']
-							self.print_info(help_msg)
+							self.logger.print_info(help_msg)
 							if (len(Params.parameters[param]['choices']) > 0):
 								choices_msg = ', '.join([ choice for choice in Params.parameters[param]['choices']])
-								self.print_info("Available values: {:s}".format(choices_msg))
+								self.logger.print_info("Available values: {:s}".format(choices_msg))
 						else:
-							self.print_error("Unknown parameter/option: {:s}.".format(param))
+							self.logger.print_error("Unknown parameter/option: {:s}.".format(param))
 				elif (cmd.lower() == VmfShell.CMD_SHOW):
+					#
+					# Displays the value of the given field
+					#
 					if (len(tokens) == 2):
 						param = tokens[1]
 						if (param in Params.parameters.keys()):
 							value = Params.__dict__[param]
 							if (isinstance(value, int)):
 								value = "0x{:02x}".format(value)
-							self.print_info("{:s} = {:s}".format(param, value))
+							self.logger.print_info("{:s} = {:s}".format(param, value))
 						elif param.lower() == "all":
 							for p in Params.parameters.keys():
-								self.print_info("{:s}".format(p))
+								self.logger.print_info("{:s}".format(p))
 						else:
-							self.print_error("Unknown parameter/option {:s}.".format(param))
+							self.logger.print_error("Unknown parameter/option {:s}.".format(param))
 
 					else:
-						self.print_error("Usage: {s} <field>".format(VmfShell.CMD_SHOW))
+						self.logger.print_error("Usage: {s} <field>".format(VmfShell.CMD_SHOW))
 				elif (cmd.lower() == VmfShell.CMD_SET):
+					#
+					# Sets a field with the given value
+					#
 					if (len(tokens) == 3):
 						param = tokens[1]
 						value = tokens[2]
 						if (param in Params.__dict__.keys()):
-							Params.__dict__[param] = value
-							new_value = Params.__dict__[param]
-							self.print_success("{:s} = {:s}".format(param, new_value))
+							if (Params.parameters[param]["choices"]):
+								if (value in Params.parameters[param]["choices"]):
+									Params.__dict__[param] = value
+									new_value = Params.__dict__[param]
+									self.logger.print_success("{:s} = {:s}".format(param, new_value))
+								else:
+									self.logger.print_error("Invalid value ({:s}) for field {:s}.".format(value, param))
+									self.logger.print_info("Values for field are : {:s}.".format(','.join(Params.parameters[param]["choices"])))
+							else:
+								Params.__dict__[param] = value
+								new_value = Params.__dict__[param]
+								self.logger.print_success("{:s} = {:s}".format(param, new_value))
 						else:
-							self.print_error("Unknown parameter {:s}.".format(param))
+							self.logger.print_error("Unknown parameter {:s}.".format(param))
 					else:
-						self.print_error("Usage: {s} <field> <value>".format(VmfShell.CMD_SET))
+						self.logger.print_error("Usage: {:s} <field> <value>".format(VmfShell.CMD_SET))
 				elif (cmd.lower() == VmfShell.CMD_HEADER):
 					vmf_factory = Factory(Params)
+					header = vmf_factory.get_vmf_msg()
+					print(header[0].get_bit_array().bin)
+					#print(header[0].get_bit_array().hex)
 				elif (cmd.lower() == VmfShell.CMD_SEARCH):
 					keyword = ' '.join(tokens[1:]).lower()
 					for p in Params.parameters.keys():
 						help = Params.parameters[p]['help']
 						if (p.lower() == keyword or keyword in help.lower()):
-							self.print_success("{:s}: {:s}".format(p, help))
+							self.logger.print_success("{:s}: {:s}".format(p, help))
 				elif (cmd.lower() == VmfShell.CMD_SAVE):
 					if len(tokens) == 2:
 						file = tokens[1]
@@ -743,51 +770,23 @@ class VmfShell(object):
 						with open(file, 'w') as f:
 							json.dump(tmpdict, f)
 							
-						self.print_success("Saved VMF message to {:s}.".format(file))
+						self.logger.print_success("Saved VMF message to {:s}.".format(file))
 					else:
-						self.print_error("Specify a file to save the configuration to.")
+						self.logger.print_error("Specify a file to save the configuration to.")
 						
 				elif (cmd.lower() == VmfShell.CMD_LOAD):
-					self.print_error("Not implemented.")					
+					self.logger.print_error("Not implemented.")
+					
+					if len(tokens) == 2:
+						file = tokens[1]
+						with open(file, 'r') as f:
+							Params.parameters = json.load(f)
+						self.logger.print_success("Loaded VMF message from {:s}.".format(file))
+					else:
+						self.logger.print_error("Specify a file to load the configuration from.")
+						
 				else:
-					self.print_error("Unknown command {:s}.".format(cmd))
+					self.logger.print_error("Unknown command {:s}.".format(cmd))
 			except Exception as e:
-				self.print_error("An exception as occured: {:s}".format(e.message))
+				self.logger.print_error("An exception as occured: {:s}".format(e.message))
 				traceback.print_exc(file=sys.stdout)
-			
-	def print_error(self, _msg):
-		self.print_msg(VmfShell.MSG_ERROR, _msg)
-
-	def print_warn(self, _msg):
-		self.print_msg(VmfShell.MSG_WARN, _msg)
-
-	def print_info(self, _msg):
-		self.print_msg(VmfShell.MSG_INFO, _msg)
-
-	def print_debug(self, _msg):
-		self.print_msg(VmfShell.MSG_DEBUG, _msg)
-
-	def print_success(self, _msg):
-		self.print_msg(VmfShell.MSG_SUCCESS, _msg)
-
-	def print_msg(self, _type, _msg):
-		"""
-
-		"""
-		if (_type == VmfShell.MSG_ERROR):
-			exc_type, exc_obj, exc_tb = sys.exc_info()
-			if (exc_tb):
-				self.output.write("[-] " + _msg + "[{:d}]".format(exc_tb.tb_lineno))
-			else:
-				self.output.write("[-] " + _msg )
-		elif (_type == VmfShell.MSG_WARN):
-			self.output.write("[!] " + _msg)
-		elif (_type == VmfShell.MSG_INFO):
-			self.output.write("[*] " + _msg)
-		elif (_type == VmfShell.MSG_DEBUG):
-			self.output.write("[>] " + _msg)
-		elif (_type == VmfShell.MSG_SUCCESS):
-			self.output.write("[+] " + _msg)
-		else:
-			self.output.write("    " + _msg)
-		self.output.write('\n')

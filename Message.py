@@ -29,27 +29,19 @@ __version__ = '.'.join(__version_info__)
 
 #//////////////////////////////////////////////////////////
 # Imports Statements
-from Fields import *
-from Groups import *
-
+from enum import Enum
+from bitstring import BitArray
 #//////////////////////////////////////////////////////////
 
-MSG_SUCCESS = 0x0
-MSG_ERROR   = 0x1
-MSG_WARN    = 0x2
-MSG_INFO    = 0x3
-MSG_DEBUG    = 0x4
+class Message(object):
 
-# =============================================================================
-# Factory Class
-#
-# Description: Defines the fields required to build a VMF message and
-#       creates those fields based on user-provides values via
-#       the command line.
-#
-class Factory(object):
-
-	vmf_fields = {
+	def __init__(self):
+		self.header = Header()
+		self.data = None
+		
+class Header(object):
+	
+	elements = {
 		"vmfversion"    : Field(
 						_name="Version",
 						_size=4,
@@ -310,286 +302,146 @@ class Factory(object):
 						_name="Message Security Padding",
 						_size=2040,
 						_groupcode=CODE_GRP_SEC_PAD,
-						_index=1)
-	}
-
-	vmf_groups = {
-		CODE_GRP_HEADER     : [Group(
+						_index=1),
+		CODE_GRP_HEADER     : Group(
 						_name="Application Header",
-						_isroot=True)],
-		CODE_GRP_ORIGIN_ADDR    : [Group(
+						_isroot=True),
+		CODE_GRP_ORIGIN_ADDR    : Group(
 						_name="Originator Address",
 						_parent=CODE_GRP_HEADER,
-						_index=2)],
-		CODE_GRP_RCPT_ADDR  : [Group(
+						_index=2),
+		CODE_GRP_RCPT_ADDR  : Group(
 						_name="Recipient Address Group",
 						_is_repeatable=True,
 						_max_repeat=16,
 						_parent=CODE_GRP_HEADER,
-						_index=3)],
-		CODE_GRP_INFO_ADDR  : [Group(
+						_index=3),
+		CODE_GRP_INFO_ADDR  : Group(
 						_name="Information Address Group",
 						_is_repeatable=True,
 						_max_repeat=16,
 						_parent=CODE_GRP_HEADER,
-						_index=4)],
-		CODE_GRP_MSG_HAND   : [Group(
+						_index=4),
+		CODE_GRP_MSG_HAND   : Group(
 						_name="Message Handling Group",
 						_is_repeatable=True,
 						_max_repeat=16,
 						_parent=CODE_GRP_HEADER,
-						_index=5+5*ENABLE_FUTURE_GRP)],
+						_index=5+5*ENABLE_FUTURE_GRP),
 
-		CODE_GRP_VMF_MSG_IDENT  : [Group(
+		CODE_GRP_VMF_MSG_IDENT  : Group(
 						_name="VMF Message Identification",
 						_parent=CODE_GRP_MSG_HAND,
-						_index=2)],
-		CODE_GRP_ORIGIN_DTG : [Group(
+						_index=2),
+		CODE_GRP_ORIGIN_DTG : Group(
 						_name="Originator DTG",
 						_parent=CODE_GRP_MSG_HAND,
-						_index=10)],
-		CODE_GRP_PERISH_DTG : [Group(
+						_index=10),
+		CODE_GRP_PERISH_DTG : Group(
 						_name="Perishability DTG",
 						_parent=CODE_GRP_MSG_HAND,
-						_index=11)],
-		CODE_GRP_ACK        : [Group(
+						_index=11),
+		CODE_GRP_ACK        : Group(
 						_name="Acknowledgement Req. Group",
 						_parent=CODE_GRP_MSG_HAND,
-						_index=12)],
-		CODE_GRP_RESPONSE   : [Group(
+						_index=12),
+		CODE_GRP_RESPONSE   : Group(
 						_name="Response Data Group",
 						_parent=CODE_GRP_MSG_HAND,
-						_index=13)],
-		CODE_GRP_REF        : [Group(
+						_index=13),
+		CODE_GRP_REF        : Group(
 						_name="Reference Message Data Group",
 						_is_repeatable=True,
 						_max_repeat=4,
 						_parent=CODE_GRP_MSG_HAND,
-						_index=14)],
-		CODE_GRP_MSG_SECURITY   : [Group(
+						_index=14),
+		CODE_GRP_MSG_SECURITY   : Group(
 						_name="Message Security Group",
 						_parent=CODE_GRP_MSG_HAND,
-						_index=15+5*ENABLE_FUTURE_GRP)],
-		CODE_GRP_KEYMAT     : [Group(
+						_index=15+5*ENABLE_FUTURE_GRP),
+		CODE_GRP_KEYMAT     : Group(
 						_name="Keying Material Group",
 						_parent=CODE_GRP_MSG_SECURITY,
-						_index=1)],
-		CODE_GRP_CRYPTO_INIT    : [Group(
+						_index=1),
+		CODE_GRP_CRYPTO_INIT    : Group(
 						_name="Crypto. Initialization Group",
 						_parent=CODE_GRP_MSG_SECURITY,
-						_index=2)],
-		CODE_GRP_KEY_TOKEN  : [Group(
+						_index=2),
+		CODE_GRP_KEY_TOKEN  : Group(
 						_name="Key Token Group",
 						_parent=CODE_GRP_MSG_SECURITY,
-						_index=3)],
-		CODE_GRP_AUTH_A     : [Group(
+						_index=3),
+		CODE_GRP_AUTH_A     : Group(
 						_name="Authentication Group (A)",
 						_parent=CODE_GRP_MSG_SECURITY,
-						_index=4)],
-		CODE_GRP_AUTH_B     : [Group(
+						_index=4),
+		CODE_GRP_AUTH_B     : Group(
 						_name="Authentication Group (B)",
 						_parent=CODE_GRP_MSG_SECURITY,
-						_index=5)],
-		CODE_GRP_SEC_PAD    : [Group(
+						_index=5),
+		CODE_GRP_SEC_PAD    : Group(
 						_name="Message Security Padding",
 						_parent=CODE_GRP_MSG_SECURITY,
-						_index=7)]
-	}
-
-	def __init__(self, _args):
-		self.print_msg(MSG_INFO, "Building VMF factory...")
-		for field_name, field_value in _args.__dict__.items():
-			if (field_value != None and field_name in self.vmf_fields.keys()):
-				vmf_field_name = self.vmf_fields[field_name][0].name
-				if (isinstance(field_value, list)):
-					template = self.vmf_fields[field_name][0]
-					nb_items = len(field_value)
-					self.vmf_fields[field_name] = [template]*nb_items
-					for field_idx in range(0, len(self.vmf_fields[field_name])):
-						self.vmf_fields[field_name][field_idx].enable_and_set(field_value[field_idx])
-
-						if (isinstance(field_value[field_idx], int)):
-							self.print_setting(1, vmf_field_name, "0x{:02x}".format(field_value[field_idx]))
-						else:
-							self.print_setting(1, vmf_field_name, "{:s}".format(field_value[field_idx]))
-
-				else:
-					self.vmf_fields[field_name][0].enable_and_set(field_value)
-					if (isinstance(field_value, int)):
-						self.print_setting(1, vmf_field_name, "0x{:02x}".format(field_value))
-					else:
-						self.print_setting(1, vmf_field_name, "{:s}".format(field_value))
-
-	def print_msg(self, _type, _msg):
-		if (_type == MSG_ERROR):
-			exc_type, exc_obj, exc_tb = sys.exc_info()
-			if (exc_tb):
-				print("[-] " + _msg + "[{:d}]".format(exc_tb.tb_lineno))
-			else:
-				print("[-] " + _msg )
-		elif (_type == MSG_WARN):
-			print("[!] " + _msg)
-		elif (_type == MSG_INFO):
-			print("[*] " + _msg)
-		elif (_type == MSG_DEBUG):
-			print("[>] " + _msg)
-		elif (_type == MSG_SUCCESS):
-			print("[+] " + _msg)
-		else:
-			print("    " + _msg)
-				
-	def print_setting(self, _prefixtabs, _setting, _value):
-		linesize = 59
-		setting_len = len(_setting)
-		value_len = len(_value)
-		tabs_len = 3+4*_prefixtabs
-
-		if (setting_len + value_len + tabs_len >= linesize):
-			indent = 3
-			line1 = ('\t' * _prefixtabs) + _setting
-			self.print_msg(MSG_SUCCESS, line1)
-			lines_len = int(math.ceil(value_len / (linesize-tabs_len-indent)))
-			cut_start = 0
-			cut_end = 0
-			for i in range(0, lines_len):
-				prefix = ('\t' * _prefixtabs) + (' ' * indent)
-				cut_end = cut_start+linesize - (len(prefix)+3)
-				substr = _value[cut_start:cut_end]
-				self.print_msg(-1, prefix + substr)
-				cut_start = cut_end + 1
-		else:
-			space_len = linesize - value_len - (tabs_len + setting_len)
-			line = ('\t' * _prefixtabs) + _setting + (' ' * space_len) + _value
-			self.print_msg(MSG_SUCCESS, line)
-				
-	@staticmethod
-	def get_value_from_dict(_key, _dict):
-		for key, value in _dict.__dict__.items():
-			if (key.lower() == _key.lower()):
-				return value
-		return None
-
-	def new_message(self, _args):
+						_index=7)
+	}	
 	
-		new_message = Message()
-	
-		# Iterate thru the parameters provided by the user to
-		# create the message object.
-		for field_name, field_value in _args.__dict__.items():
-			# Validate the field given
-			if (field_value != None and field_name in new_message.header.fields.keys()):
-				# Get the field to create, and create a copy
-				# from the dictionary.
-				vmf_field_name = new_message.header[field_name].name
-				vmf_field_value = new_message.header[field_name].value 
-				vmf_field_group = new_message.header[field_name].grp_code
-				new_field = new_message.header[field_name]
-				new_field.enable_and_set(vmf_field_value)
-				new_message.header[vmf_field_name] = new_field
-				vmf_group = new_message.header[vmf_field_group]
-				vmf_group.append_field(new_field)
-				
-		for (code, group) in new_message.groups.iteritems():
-			parent_group = group.parent_group
-			if (not parent_group is None):
-				new_message.header[parent_group].fields.append(group)
-				#self.print_msg(MSG_DEBUG, "Added '{:s}' child group to '{:s}'.".format(g_array[i].name, parent_group))
-		return new_message
-				
-	def get_vmf_msg(self):
-		"""
-			Creates a new VMF messages based on the parameters
-			given. 
-		"""
-		self.print_msg(MSG_DEBUG, "Creating VMF message object...")
-		self.print_msg(MSG_DEBUG, "Adding fields to groups...")
-
-		#Resets the groups by removing fields
-		#TODO: bad design. need message class.
-		for grp in self.vmf_groups:	
-			self.vmf_groups[grp][0].clear_fields()
-
+	def __init__(self):
+		pass
 		
-		for (f_name, f_array) in self.vmf_fields.iteritems():
-			i = 0
-			group_code = f_array[i].grp_code
-			if (not group_code in self.vmf_groups):
-				raise Exception("Undefined group code: {:s}.".format(group_code))
-			group_name = self.vmf_groups[group_code][i].name
-			self.vmf_groups[group_code][i].append_field(f_array[i])
-			self.print_msg(MSG_DEBUG, "Added field '{:s}' to group '{:s}'.".format(f_array[i].name, group_name))
-		self.print_msg(MSG_DEBUG, "Creating group structure...")
-		root_grp = self.vmf_groups[CODE_GRP_HEADER]
-		for (g_code, g_array) in self.vmf_groups.iteritems():
-			i = 0
-			parent_group = g_array[i].parent_group
-			if (not parent_group is None):
-				self.vmf_groups[parent_group][i].fields.append(g_array[i])
-				self.print_msg(MSG_DEBUG, "Added '{:s}' child group to '{:s}'.".format(g_array[i].name, parent_group))
-		return root_grp
+	def __setitem__(self, _key, _value):
+		self.append_element(_key, _value)
 
-	def print_structure(self):
-		print("="*60)
-		self.print_msg(MSG_DEBUG, "Printing VMF Message Structure")
-		header = self.vmf_groups[CODE_GRP_HEADER][0]
-		header.fields.sort()
-		self.print_msg(MSG_SUCCESS, "\t{:s}".format(header.name))
-		for i in range(0, len(header.fields)):
-			header_field = header.fields[i]
-			if (isinstance(header_field, field)):
-				self.print_msg(MSG_ERROR, "\t      {:s}".format(header_field.name))
-			elif (isinstance(header_field, group)):
-				self.print_struct_rec(3, header_field)
+	def __getitem__(self, _name):
+		self.elements[_name]	
+	
+	def __delitem__(self, _key):
+		self.remove_element(_key)
+	
+	def append_element(self, _key, _elem):
+		"""
+			Adds a field or group to the header.
+		"""
+		name = _key
+		#Check if an element with a similar name
+		#exists
+		if name in self.elements.keys():
+			value = self.elements[name]
+			# Check if the value is a list, if it is 
+			# and the field is repeatable, append the
+			# element to the list.
+			if (isinstance(value, list)):
+				nb_elem = len(value)
+				if (nb_elem < _elem.max_repeat):
+					value.append(_elem)
+				else:
+					raise Exception("""
+						Cannot add additional element '{:s}'. Either the element 
+						is not repeatable or maximum number of elements 
+						reached.""".format(name))
 			else:
-				raise Exception("Unknown header element type: {:s}.".format(header_field))
-
-	def print_struct_rec(self, _tabs, _elem):
-		if (isinstance(_elem, field)):
-			self.print_msg(MSG_ERROR, "\t   " + " "*_tabs + "{:s}".format(_elem.name))
-		elif(isinstance(_elem, group)):
-			self.print_msg(MSG_SUCCESS, "\t   " + " "*_tabs + "{:s}".format(_elem.name))
-			_elem.fields.sort()
-			for f in _elem.fields:
-				self.print_struct_rec(_tabs+4, f)
-		else:
-			raise Exception("Unknown element type: {:s}.".format(_elem))
-
-	def print_header_binary(self):
-		print("="*60)
-		print_msg(MSG_INFO, "VMF Message Binary Fields")
-		header = self.vmf_groups[CODE_GRP_HEADER][0]
-		for i in range(0, len(header.fields)):
-			f = header.fields[i]
-			ba = f.get_bit_array()
-			if (isinstance(f, field)):
-				self.print_setting(1, f.name, ba.bin)
-			elif(isinstance(f, group)):
-				print_setting(1, f.name, ba.bin[0])
-				self.print_header_binary_rec(1, f)
-
-	def print_header_binary_rec(self, _tabs, _elem):
-		for i in range(0, len(_elem.fields)):
-			f = _elem.fields[i]
-			if (isinstance(f, field)):
-				ba = f.get_bit_array()
-				self.print_setting(_tabs, f.name, ba.bin)
-			elif(isinstance(f, group)):
-				ba = f.get_bit_array()
-				self.print_setting(1, f.name, ba.bin[0])
-				self.print_header_binary_rec(_tabs, f)				
-				
-	@staticmethod
-	def string_to_bitarray(_string, _maxsize=448):
-		b = BitArray()
-		pos = 0
-		if (_string):
-			for c in _string:
-				c_str = "{:#09b}".format(ord(c))
-				b.insert(c_str, pos)
-				pos += 7
-		if (len(b.bin) < _maxsize):
-			b.insert(TERMINATOR, pos)
-		if (len(b.bin) > _maxsize):
-			raise ("Size of bit array exceeds the maximum size allowed ({:d}).".format(_maxsize))
-		return b
-
+				# If the element is repeatable, assume that the provided
+				# element is a new one. Creates a list of elements.
+				if _elem.is_repeatable:
+					tmplist = [value, _elem]
+					self.elements[name] = tmplist
+				# Other, the default behaviour is to replace the current
+				# element
+				else:
+					self.elements[name] = _elem
+					
+					
+	def remove_element(self, _name):
+		del self.elements[_name]
+		
+	def clear_elements(self):
+		self.elements.clear()
+		
+	def groups(self):
+		g = {}
+		for (key, value) in self.elements:
+			if isinstance(value, Group):
+				g[key] = value
+		return g
+	def __iter__(self): 
+		return self.elements.itervalues()
+		

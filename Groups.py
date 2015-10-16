@@ -31,36 +31,13 @@ __version__ = '.'.join(__version_info__)
 # Imports Statements
 from enum import Enum
 from bitstring import BitArray
+from Elements import *
 #//////////////////////////////////////////////////////////
 
 #//////////////////////////////////////////////////////////
 # Global Variables
-ABSENT  = 0x0
-PRESENT = 0x1
 
-DEFAULT_FPI = ABSENT
-DEFAULT_FRI = 0
-DEFAULT_GPI = ABSENT
-DEFAULT_GRI = 0
 
-CODE_GRP_HEADER     = "header"
-CODE_GRP_ORIGIN_ADDR    = "G1"
-CODE_GRP_RCPT_ADDR  = "G2"
-CODE_GRP_INFO_ADDR  = "G3"
-CODE_GRP_MSG_HAND   = "R3"
-CODE_GRP_VMF_MSG_IDENT  = "G9"
-CODE_GRP_ORIGIN_DTG = "G10"
-CODE_GRP_PERISH_DTG = "G11"
-CODE_GRP_ACK        = "G12"
-CODE_GRP_RESPONSE   = "G13"
-CODE_GRP_REF        = "G14"
-CODE_GRP_MSG_SECURITY   = "G20"
-CODE_GRP_KEYMAT     = "G21"
-CODE_GRP_CRYPTO_INIT    = "G22"
-CODE_GRP_KEY_TOKEN  = "G23"
-CODE_GRP_AUTH_A     = "G24"
-CODE_GRP_AUTH_B     = "G25"
-CODE_GRP_SEC_PAD    = "G26"
 #//////////////////////////////////////////////////////////
 
 # =============================================================================
@@ -69,24 +46,18 @@ CODE_GRP_SEC_PAD    = "G26"
 # Description:
 #   Class to represent sets of fields with similar functions.
 #
-class Group(object):
-    is_root = False
-    is_repeatable = False
-    max_repeat = 1
-    name = ""
-    parent_group = None
-    index = 0
+class Group(HeaderElement):
 
-    def __init__(self, _name, _is_repeatable=False, _isroot=False, _parent=None, _max_repeat=1, _index=0):
-        self.name = _name
+    def __init__(self, _name, _is_repeatable=False, _isroot=False, 
+		_parent=None, _max_repeat=1, _index=0):
+		
+        super(Group, self).__init__(_name, _is_repeatable, _max_repeat, _index)
+		
+        self.pi = DEFAULT_GPI
+        self.ri = DEFAULT_GRI
         self.is_root = _isroot
-        self.is_repeatable = _is_repeatable
-        self.max_repeat = _max_repeat
         self.parent_group = _parent
-        self.index = _index
         self.fields = []#*(6+15*ENABLE_FUTURE_GRP)
-        self.gpi = DEFAULT_FPI
-        self.gri = DEFAULT_GRI
 
     def __repr__(self):
         return "{:d}:{:s}".format(self.index, self.name)
@@ -100,28 +71,30 @@ class Group(object):
             raise Exception("Provided comparision item must be an integer.")
 
     def enable(self):
-        self.gpi = PRESENT
+        self.pi = PRESENT
 
     def set_gri(self, _value):
-        self.gri = _value
+        self.ri = _value
 
+    def clear_fields(self):
+        self.fields = []
+		
     def append_field(self, _field):
-        #TODO toggle GPI if field is indicator or FPI ==- present
-        #doesn't work...
-        if (_field.fpi == PRESENT):
-            self.gpi = PRESENT
+        if (_field.pi == PRESENT):
+            self.pi = PRESENT
         self.fields.append(_field)
 
+		
     def get_bit_array(self):
-        b = BitArray()
-        b.append("{:#03b}".format(self.gpi))
-        if (self.gpi == ABSENT):
-            return b
-        if (self.is_repeatable):
-            b.append("{:#03b}".format(self.gri))
-        for f in self.fields:
-            fbits = f.get_bit_array()
-            b.append(fbits)
-        return b
+		b = BitArray()
+		b.append("{:#03b}".format(self.pi))
+		if (self.pi == ABSENT):
+			return b
+		if (self.is_repeatable):
+			b.append("{:#03b}".format(self.ri))
+		for f in self.fields:
+			fbits = f.get_bit_array()
+			b.append(fbits)
+		return b
 
 
