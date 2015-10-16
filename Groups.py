@@ -113,15 +113,15 @@ class Group(object):
         self.fields.append(_field)
 
     def get_bit_array(self):
-        b = BitArray()
-        b.append("{:#03b}".format(self.gpi))
-        if (self.gpi == ABSENT):
-            return b
-        if (self.is_repeatable):
-            b.append("{:#03b}".format(self.gri))
-        for f in self.fields:
-            fbits = f.get_bit_array()
-            b.append(fbits)
-        return b
+		b = BitArray()
+		b.append("{:#03b}".format(self.gpi))
+		if (self.gpi == ABSENT):
+			return b
+		if (self.is_repeatable):
+			b.append("{:#03b}".format(self.gri))
+		for f in self.fields:
+			fbits = f.get_bit_array()
+			b.append(fbits)
+		return b
 
 

@@ -359,69 +359,75 @@ class Params:
 # Field Class
 # Contains common properties to VMF fields 
 class Field(object):
-    fpi = DEFAULT_FPI
-    fri = DEFAULT_FRI
-    is_repeatable = False
-    is_indicator = False
-    size = 0
-    name = ""
-    value = 0
-    format_str = ""
-    grp_code = ""
-    enumerator = None
-    index = 0
+	fpi = DEFAULT_FPI
+	fri = DEFAULT_FRI
+	is_repeatable = False
+	is_indicator = False
+	size = 0
+	name = ""
+	value = 0
+	format_str = ""
+	grp_code = ""
+	enumerator = None
+	index = 0
 
-    def __init__(self, _name, _size, _value=0, _groupcode = 0, _repeatable=False, _indicator=False, _enumerator=None, _index=0):
-        self.name = _name
-        self.size = _size
-        self.value = _value
-        self.grp_code = _groupcode
-        self.is_repeatable = _repeatable
-        self.is_indicator = _indicator
-        self.enumerator = _enumerator
-        self.index = _index
-        self.format_str = "{:#0" + str(self.size+2) + "b}"
+	def __init__(self, _name, _size, _value=0, _groupcode = 0, _repeatable=False, _indicator=False, _enumerator=None, _index=0):
+		self.name = _name
+		self.size = _size
+		self.value = _value
+		self.grp_code = _groupcode
+		self.is_repeatable = _repeatable
+		self.is_indicator = _indicator
+		self.enumerator = _enumerator
+		self.index = _index
+		self.format_str = "{:#0" + str(self.size+2) + "b}"
 
-    def __repr__(self):
-        return "<Field: {:d}:{:s}:{:s}>".format(self.index, self.name, str(self.value))
+	def __repr__(self):
+		return "<Field: {:d}:{:s}:{:s}>".format(self.index, self.name, str(self.value))
 
-    def __cmp__(self, _field):
-        if (isinstance(_field, field)):
-            return self.index.__cmp__(_field.index)
-        elif (isinstance(_field, group)):
-            return self.index.__cmp__(_field.index)
-        else:
-            raise Exception("Provided comparision item must be an integer.")
-    
-    def enable_and_set(self, _value):
-        self.fpi = PRESENT
-        self.value = _value
+	def __cmp__(self, _field):
+		if (isinstance(_field, field)):
+			return self.index.__cmp__(_field.index)
+		elif (isinstance(_field, group)):
+			return self.index.__cmp__(_field.index)
+		else:
+			raise Exception("Provided comparision item must be an integer.")
 
-    def get_bit_array(self):
-        b = BitArray()
-        if (self.is_indicator):
-            # This check is to verify the version number, which is
-            # an exception. It is not an indicator, but it does not
-            # have a FPI.
-            field_value = self.value
-            if (self.name == "Version" and self.enumerator):
-                field_value = factory.get_value_from_dict(self.value, self.enumerator)
-                b.append(self.format_str.format(field_value))
-            else:   
-                b.append("{:#03b}".format(field_value))
-            return b
+	def enable_and_set(self, _value):
+		self.fpi = PRESENT
+		self.value = _value
 
-        b.append("{:#03b}".format(self.fpi))
-        if (self.fpi == PRESENT):
-            field_value = self.value
-            if (self.enumerator):
-                field_value = factory.get_value_from_dict(self.value, self.enumerator)
-            if (isinstance(field_value, int)):
-                if (self.is_repeatable):
-                    b.append("{:#03b}".format(self.fri))
-                if (self.fpi == PRESENT or self.is_indicator):
-                    b.append(self.format_str.format(field_value))
-        return b
+	def get_value_from_dict(self, _key, _dict):
+		for key, value in _dict.__dict__.items():
+			if (key.lower() == _key.lower()):
+				return value
+		return None		
+		
+	def get_bit_array(self):
+		b = BitArray()
+		if (self.is_indicator):
+			# This check is to verify the version number, which is
+			# an exception. It is not an indicator, but it does not
+			# have a FPI.
+			field_value = self.value
+			if (self.name == "Version" and self.enumerator):
+				field_value = self.get_value_from_dict(self.value, self.enumerator)
+				b.append(self.format_str.format(field_value))
+			else:   
+				b.append("{:#03b}".format(field_value))
+			return b
+
+		b.append("{:#03b}".format(self.fpi))
+		if (self.fpi == PRESENT):
+			field_value = self.value
+			if (self.enumerator):
+				field_value = self.get_value_from_dict(self.value, self.enumerator)
+			if (isinstance(field_value, int)):
+				if (self.is_repeatable):
+					b.append("{:#03b}".format(self.fri))
+				if (self.fpi == PRESENT or self.is_indicator):
+					b.append(self.format_str.format(field_value))
+		return b
         #else:
             #TODO: Process strings
 

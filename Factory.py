@@ -470,8 +470,8 @@ class Factory(object):
 		return None
 
 	def get_vmf_msg(self):
-		print_msg(MSG_DEBUG, "Creating VMF message object...")
-		print_msg(MSG_DEBUG, "Adding fields to groups...")
+		self.print_msg(MSG_DEBUG, "Creating VMF message object...")
+		self.print_msg(MSG_DEBUG, "Adding fields to groups...")
 		for (f_name, f_array) in self.vmf_fields.iteritems():
 			i = 0
 			group_code = f_array[i].grp_code
@@ -479,27 +479,27 @@ class Factory(object):
 				raise Exception("Undefined group code: {:s}.".format(group_code))
 			group_name = self.vmf_groups[group_code][i].name
 			self.vmf_groups[group_code][i].append_field(f_array[i])
-			print_msg(MSG_DEBUG, "Added field '{:s}' to group '{:s}'.".format(f_array[i].name, group_name))
-		print_msg(MSG_DEBUG, "Creating group structure...")
+			self.print_msg(MSG_DEBUG, "Added field '{:s}' to group '{:s}'.".format(f_array[i].name, group_name))
+		self.print_msg(MSG_DEBUG, "Creating group structure...")
 		root_grp = self.vmf_groups[CODE_GRP_HEADER]
 		for (g_code, g_array) in self.vmf_groups.iteritems():
 			i = 0
 			parent_group = g_array[i].parent_group
 			if (not parent_group is None):
 				self.vmf_groups[parent_group][i].fields.append(g_array[i])
-				print_msg(MSG_DEBUG, "Added '{:s}' child group to '{:s}'.".format(g_array[i].name, parent_group))
+				self.print_msg(MSG_DEBUG, "Added '{:s}' child group to '{:s}'.".format(g_array[i].name, parent_group))
 		return root_grp
 
 	def print_structure(self):
 		print("="*60)
-		print_msg(MSG_DEBUG, "Printing VMF Message Structure")
+		self.print_msg(MSG_DEBUG, "Printing VMF Message Structure")
 		header = self.vmf_groups[CODE_GRP_HEADER][0]
 		header.fields.sort()
-		print_msg(MSG_SUCCESS, "\t{:s}".format(header.name))
+		self.print_msg(MSG_SUCCESS, "\t{:s}".format(header.name))
 		for i in range(0, len(header.fields)):
 			header_field = header.fields[i]
 			if (isinstance(header_field, field)):
-				print_msg(MSG_ERROR, "\t      {:s}".format(header_field.name))
+				self.print_msg(MSG_ERROR, "\t      {:s}".format(header_field.name))
 			elif (isinstance(header_field, group)):
 				self.print_struct_rec(3, header_field)
 			else:
@@ -507,9 +507,9 @@ class Factory(object):
 
 	def print_struct_rec(self, _tabs, _elem):
 		if (isinstance(_elem, field)):
-			print_msg(MSG_ERROR, "\t   " + " "*_tabs + "{:s}".format(_elem.name))
+			self.print_msg(MSG_ERROR, "\t   " + " "*_tabs + "{:s}".format(_elem.name))
 		elif(isinstance(_elem, group)):
-			print_msg(MSG_SUCCESS, "\t   " + " "*_tabs + "{:s}".format(_elem.name))
+			self.print_msg(MSG_SUCCESS, "\t   " + " "*_tabs + "{:s}".format(_elem.name))
 			_elem.fields.sort()
 			for f in _elem.fields:
 				self.print_struct_rec(_tabs+4, f)
@@ -524,7 +524,7 @@ class Factory(object):
 			f = header.fields[i]
 			ba = f.get_bit_array()
 			if (isinstance(f, field)):
-				print_setting(1, f.name, ba.bin)
+				self.print_setting(1, f.name, ba.bin)
 			elif(isinstance(f, group)):
 				print_setting(1, f.name, ba.bin[0])
 				self.print_header_binary_rec(1, f)
@@ -534,10 +534,10 @@ class Factory(object):
 			f = _elem.fields[i]
 			if (isinstance(f, field)):
 				ba = f.get_bit_array()
-				print_setting(_tabs, f.name, ba.bin)
+				self.print_setting(_tabs, f.name, ba.bin)
 			elif(isinstance(f, group)):
 				ba = f.get_bit_array()
-				print_setting(1, f.name, ba.bin[0])
+				self.print_setting(1, f.name, ba.bin[0])
 				self.print_header_binary_rec(_tabs, f)				
 				
 	@staticmethod
