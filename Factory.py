@@ -471,14 +471,17 @@ class Factory(object):
 
 	def get_vmf_msg(self):
 		"""
-		
+			Creates a new VMF messages based on the parameters
+			given. 
 		"""
 		self.print_msg(MSG_DEBUG, "Creating VMF message object...")
 		self.print_msg(MSG_DEBUG, "Adding fields to groups...")
-		
+
+		#Resets the groups by removing fields
+		#TODO: bad design. need message class.
 		for grp in self.vmf_groups:	
 			self.vmf_groups[grp][0].clear_fields()
-			#grp.clear_fields()
+
 		
 		for (f_name, f_array) in self.vmf_fields.iteritems():
 			i = 0
