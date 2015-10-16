@@ -32,6 +32,7 @@ __version__ = '.'.join(__version_info__)
 from enum import Enum
 from bitstring import BitArray
 from Elements import *
+from Fields import Field
 #//////////////////////////////////////////////////////////
 
 #//////////////////////////////////////////////////////////
@@ -63,9 +64,9 @@ class Group(HeaderElement):
         return "{:d}:{:s}".format(self.index, self.name)
 
     def __cmp__(self, _field):
-        if (isinstance(_field, field)):
+        if (isinstance(_field, Field)):
             return self.index.__cmp__(_field.index)
-        elif (isinstance(_field, group)):
+        elif (isinstance(_field, Group)):
             return self.index.__cmp__(_field.index)
         else:
             raise Exception("Provided comparision item must be an integer.")
@@ -87,14 +88,29 @@ class Group(HeaderElement):
 		
     def get_bit_array(self):
 		b = BitArray()
-		b.append("{:#03b}".format(self.pi))
-		if (self.pi == ABSENT):
+		# Do not include a GPI/GRI for the root group,
+		# which is only a container.
+		if (self.is_root):
 			return b
-		if (self.is_repeatable):
-			b.append("{:#03b}".format(self.ri))
-		for f in self.fields:
-			fbits = f.get_bit_array()
-			b.append(fbits)
-		return b
+		else:
+			# Includes the GPI
+			b.append("{:#03b}".format(self.pi))
+		
+			# If this group is absent, no more bits
+			# are needed
+			if (self.pi == ABSENT):
+				return b
+
+			# If this is a repeatable field, include
+			# the current value of the GRI
+			if (self.is_repeatable):
+				b.append("{:#03b}".format(self.ri))
+
+			# Append all the sub bitstrings of each
+			# field contained in the group
+			for f in self.fields:
+				fbits = f.get_bit_array()
+				b.append(fbits)
+			return b
 
 

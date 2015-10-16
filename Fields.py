@@ -407,31 +407,42 @@ class Field(HeaderElement):
 		
 	def get_bit_array(self):
 		b = BitArray()
+		# Some fields do no have a FPI field assigned to them.
+		# Therefore, these fields must only contain bits representing
+		# their value.
 		if (self.is_indicator):
-			# This check is to verify the version number, which is
-			# an exception. It is not an indicator, but it does not
-			# have a FPI.
 			field_value = self.value
+			#TODO: Replace string with constant/field variable
 			if (self.name == "Version" and self.enumerator):
 				field_value = self.get_value_from_dict(self.value, self.enumerator)
 				b.append(self.format_str.format(field_value))
 			else:   
 				b.append("{:#03b}".format(field_value))
 			return b
+		else:
+			# Include the FPI
+			b.append("{:#03b}".format(self.pi))
 
-		b.append("{:#03b}".format(self.pi))
-		if (self.pi == PRESENT):
-			field_value = self.value
-			if (self.enumerator):
-				field_value = self.get_value_from_dict(self.value, self.enumerator)
-			if (isinstance(field_value, int)):
-				if (self.is_repeatable):
-					b.append("{:#03b}".format(self.fri))
-				if (self.pi == PRESENT or self.is_indicator):
+			# If the fiels is flagged as present, then
+			# append additional data.
+			if (self.pi == PRESENT):
+				field_value = self.value
+
+				# If the field is provided with an enumerator,get the
+				# numeric value.
+				if (self.enumerator):
+					field_value = self.get_value_from_dict(self.value, self.enumerator)
+
+				# If the value is numeric, convert directly to a bitstring
+				if (isinstance(field_value, int)):
+					# Include the FRI is the field is repeatable
+					if (self.is_repeatable):
+						b.append("{:#03b}".format(self.fri))
+				#	if (self.pi == PRESENT or self.is_indicator):
 					b.append(self.format_str.format(field_value))
-		return b
-        #else:
-            #TODO: Process strings
+				elif (isinstance(field_value, string)):
+					print("Not implemented")
+			return b
 
 # =============================================================================
 

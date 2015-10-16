@@ -690,7 +690,7 @@ class VmfShell(object):
 					if (len(tokens) == 1):
 						self.logger.print_info("{:s} <field>|all".format(VmfShell.CMD_SHOW))
 						self.logger.print_info("{:s} <field> <value>".format(VmfShell.CMD_SET))
-						self.logger.print_info("{:s}".format(VmfShell.CMD_HEADER))
+						self.logger.print_info("{:s} [field] {bin, hex}".format(VmfShell.CMD_HEADER))
 						self.logger.print_info("{:s} <field>".format(VmfShell.CMD_HELP))
 						self.logger.print_info("{:s} <field>".format(VmfShell.CMD_SEARCH))
 						self.logger.print_info("{:s}".format(VmfShell.CMD_QUIT))
@@ -716,8 +716,8 @@ class VmfShell(object):
 								value = "0x{:02x}".format(value)
 							self.logger.print_info("{:s} = {:s}".format(param, value))
 						elif param.lower() == "all":
-							for p in Params.parameters.keys():
-								self.logger.print_info("{:s}".format(p))
+							for p, v in Params.parameters.iteritems():
+								self.logger.print_info("{:s} = {:s}".format(p, v))
 						else:
 							self.logger.print_error("Unknown parameter/option {:s}.".format(param))
 
@@ -748,10 +748,34 @@ class VmfShell(object):
 					else:
 						self.logger.print_error("Usage: {:s} <field> <value>".format(VmfShell.CMD_SET))
 				elif (cmd.lower() == VmfShell.CMD_HEADER):
-					vmf_factory = Factory(Params)
-					header = vmf_factory.get_vmf_msg()
-					print(header[0].get_bit_array().bin)
+					field = "vmfversion"
+					fmt = "hex"
+	
+					if (len(tokens) >= 2):
+						field = tokens[1].lower()
+
+					if (len(tokens) == 3):
+						fmt = tokens[2].lower()
+					
+					vmf_factory = Factory()
+					vmf_message = vmf_factory.new_message(Params)
+					vmf_value = vmf_message.header.elements[field].value
+					vmf_bits = vmf_message.header.elements[field].get_bit_array()
+					output = vmf_bits
+
+					if (fmt == "bin"):
+						output = vmf_bits.bin
+					if (fmt == "hex"):
+						output = vmf_bits.hex
+
+					self.logger.print_success("{}\t{}\t{}".format(field, vmf_value, output))
+
+					#vmf_factory = Factory(Params)
+					#header = vmf_factory.get_vmf_msg()
+					#print(header[0].get_bit_array().bin)
 					#print(header[0].get_bit_array().hex)
+					#vmf_bitarray = vmf_message.get_bit_array()
+					
 				elif (cmd.lower() == VmfShell.CMD_SEARCH):
 					keyword = ' '.join(tokens[1:]).lower()
 					for p in Params.parameters.keys():

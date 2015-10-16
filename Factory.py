@@ -31,6 +31,7 @@ __version__ = '.'.join(__version_info__)
 # Imports Statements
 from Fields import *
 from Groups import *
+from Message import *
 
 #//////////////////////////////////////////////////////////
 
@@ -158,11 +159,11 @@ class Factory(object):
 						_repeatable=True,
 						_groupcode=CODE_GRP_MSG_HAND,
 						_index=9),
-		"originatordtg"     : [dtg_field(
+		"originatordtg"     : dtg_field(
 						_name="Originator DTG",
 						_groupcode=CODE_GRP_ORIGIN_DTG,
 						_index=10),
-		"perishdtg"     : [dtg_field(
+		"perishdtg"     : dtg_field(
 						_name="Perishability DTG",
 						_groupcode=CODE_GRP_PERISH_DTG,
 						_extension=False,
@@ -185,7 +186,7 @@ class Factory(object):
 						_groupcode=CODE_GRP_ACK,
 						_indicator=True,
 						_index=3),
-		"ackdtg"        : [dtg_field(
+		"ackdtg"        : dtg_field(
 						_name="DTG of Ack'd Msg.",
 						_groupcode=CODE_GRP_RESPONSE,
 						_index=12),
@@ -223,7 +224,7 @@ class Factory(object):
 						_size=448,
 						_groupcode=CODE_GRP_REF,
 						_index=0),
-		"refdtg"        : [dtg_field(
+		"refdtg"        : dtg_field(
 						_name="Reference Message DTG",
 						_groupcode=CODE_GRP_REF,
 						_index=1),
@@ -396,7 +397,9 @@ class Factory(object):
 						_index=7)]
 	}
 
-	def __init__(self, _args):
+	def __init__(self):
+		pass
+		'''
 		self.print_msg(MSG_INFO, "Building VMF factory...")
 		for field_name, field_value in _args.__dict__.items():
 			if (field_value != None and field_name in self.vmf_fields.keys()):
@@ -419,6 +422,7 @@ class Factory(object):
 						self.print_setting(1, vmf_field_name, "0x{:02x}".format(field_value))
 					else:
 						self.print_setting(1, vmf_field_name, "{:s}".format(field_value))
+		'''
 
 	def print_msg(self, _type, _msg):
 		if (_type == MSG_ERROR):
@@ -477,23 +481,26 @@ class Factory(object):
 		# create the message object.
 		for field_name, field_value in _args.__dict__.items():
 			# Validate the field given
-			if (field_value != None and field_name in new_message.header.fields.keys()):
+			if (field_value != None and field_name in new_message.header.elements.keys()):
 				# Get the field to create, and create a copy
 				# from the dictionary.
-				vmf_field_name = new_message.header[field_name].name
-				vmf_field_value = new_message.header[field_name].value 
-				vmf_field_group = new_message.header[field_name].grp_code
-				new_field = new_message.header[field_name]
-				new_field.enable_and_set(vmf_field_value)
-				new_message.header[vmf_field_name] = new_field
-				vmf_group = new_message.header[vmf_field_group]
+				vmf_field_name = new_message.header.elements[field_name].name
+#				vmf_field_value = new_message.header.elements[field_name].value 
+				vmf_field_group = new_message.header.elements[field_name].grp_code
+				new_field = new_message.header.elements[field_name]
+				# Set the FPI/GPI of the field/group
+				new_field.enable_and_set(field_value)
+				new_message.header.elements[vmf_field_name] = new_field
+				# Add the field to group
+				vmf_group = new_message.header.elements[vmf_field_group]
 				vmf_group.append_field(new_field)
 				
-		for (code, group) in new_message.groups.iteritems():
+		for (code, group) in new_message.header.groups().iteritems():
 			parent_group = group.parent_group
 			if (not parent_group is None):
-				new_message.header[parent_group].fields.append(group)
+				new_message.header.elements[parent_group].fields.append(group)
 				#self.print_msg(MSG_DEBUG, "Added '{:s}' child group to '{:s}'.".format(g_array[i].name, parent_group))
+		new_message.header.sort()
 		return new_message
 				
 	def get_vmf_msg(self):
