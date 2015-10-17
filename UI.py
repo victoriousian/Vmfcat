@@ -54,7 +54,7 @@ class Params:
       "debug" : {
             "cmd"       : "debug",
             "help"      : "Enables debug mode.",
-            "choices"   : [True, False]
+            "choices"   : [1, 0]
             },
       "vmfversion" : {
             "cmd"       : "vmfversion",
@@ -146,7 +146,7 @@ class Params:
             },
       "retransmission"  : {
             "cmd"       : "retransmission",
-            "choices"   : [True, False],
+            "choices"   : [1, 0],
             "help"      : """Indicates whether a message is a retransmission."""
             },
       "msgprecedence"   : {
@@ -176,12 +176,12 @@ class Params:
             },
       "ackmachine"      : {
             "cmd"       : "ackmachine",
-            "choices"   : [True, False],
+            "choices"   : [1, 0],
             "help"      : """Indicates whether the originator of a machine requires a machine acknowledgement for the message."""
             },
       "ackop"           : {
             "cmd"       : "ackop",
-            "choices"   : [True, False],
+            "choices"   : [1, 0],
             "help"      : """Indicates whether the originator of the message requires an acknowledgement for the message from the recipient."""
             },
       "ackdtg"           : {
@@ -201,7 +201,7 @@ class Params:
 			},	
       "reply"           : {
             "cmd"       : "reply",
-            "choices"   : [True, False],
+            "choices"   : [1, 0],
             "help"      : """Indicates whether the originator of the message requires an operator reply to the message."""
             },
 	  "cantco"       	: {
@@ -644,12 +644,6 @@ class VmfShell(object):
 	"""
 		Interative shell to Vmfcat. The shell can be use to build a VMF message.
 	"""
-	MSG_SUCCESS = 0x0
-	MSG_ERROR   = 0x1
-	MSG_WARN    = 0x2
-	MSG_INFO    = 0x3
-	MSG_DEBUG    = 0x4
-
 	CMD_SAVE = 'save'
 	CMD_LOAD = 'load'
 	CMD_SEARCH = 'search'
@@ -714,10 +708,11 @@ class VmfShell(object):
 							value = Params.__dict__[param]
 							if (isinstance(value, int)):
 								value = "0x{:02x}".format(value)
-							self.logger.print_info("{:s} = {:s}".format(param, value))
+							self.logger.print_info("{} = {}".format(param, value))
 						elif param.lower() == "all":
-							for p, v in Params.parameters.iteritems():
-								self.logger.print_info("{:s} = {:s}".format(p, v))
+							for p in Params.parameters.keys():
+								value = Params.__dict__[p]
+								self.logger.print_info("{} = {}".format(p, value))
 						else:
 							self.logger.print_error("Unknown parameter/option {:s}.".format(param))
 

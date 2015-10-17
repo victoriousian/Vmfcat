@@ -319,7 +319,7 @@ class Params:
             },
       "retransmission"  : {
             "cmd"       : "retransmission",
-            "choices"   : [True, False],
+            "choices"   : [1, 0],
             "help"      : """Indicates whether a message is a retransmission."""
             },
       "msgprecedence"   : {
@@ -349,17 +349,17 @@ class Params:
             },
       "ackmachine"      : {
             "cmd"       : "ackmachine",
-            "choices"   : [True, False],
+            "choices"   : [1, 0],
             "help"      : """Indicates whether the originator of a machine requires a machine acknowledgement for the message."""
             },
       "ackop"           : {
             "cmd"       : "ackop",
-            "choices"   : [True, False],
+            "choices"   : [1, 0],
             "help"      : """Indicates whether the originator of the message requires an acknowledgement for the message from the recipient."""
             },
       "reply"           : {
             "cmd"       : "reply",
-            "choices"   : [True, False],
+            "choices"   : [1, 0],
             "help"      : """Indicates whether the originator of the message requires an operator reply to the message."""
             }
     }
