@@ -690,7 +690,7 @@ class VmfShell(object):
 					if (len(tokens) == 1):
 						self.logger.print_info("{:s} <field>|all".format(VmfShell.CMD_SHOW))
 						self.logger.print_info("{:s} <field> <value>".format(VmfShell.CMD_SET))
-						self.logger.print_info("{:s} [field] {bin, hex}".format(VmfShell.CMD_HEADER))
+						self.logger.print_info("{:s} [field] {{bin, hex}}".format(VmfShell.CMD_HEADER))
 						self.logger.print_info("{:s} <field>".format(VmfShell.CMD_HELP))
 						self.logger.print_info("{:s} <field>".format(VmfShell.CMD_SEARCH))
 						self.logger.print_info("{:s}".format(VmfShell.CMD_QUIT))
