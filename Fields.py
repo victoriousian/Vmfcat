@@ -55,7 +55,7 @@ from Elements import *
 
 ENABLE_FUTURE_GRP = 0
 
-TERMINATOR = 0x7E
+TERMINATOR = 0x7F
 NO_STATEMENT       = 63
 
 
@@ -388,9 +388,9 @@ class Field(HeaderElement):
 		return "<Field: {:d}:{:s}:{:s}>".format(self.index, self.name, str(self.value))
 
 	def __cmp__(self, _field):
-		if (isinstance(_field, field)):
+		if (isinstance(_field, Field)):
 			return self.index.__cmp__(_field.index)
-		elif (isinstance(_field, group)):
+		elif (isinstance(_field, Group)):
 			return self.index.__cmp__(_field.index)
 		else:
 			raise Exception("Provided comparision item must be an integer.")
@@ -440,9 +440,28 @@ class Field(HeaderElement):
 						b.append("{:#03b}".format(self.fri))
 				#	if (self.pi == PRESENT or self.is_indicator):
 					b.append(self.format_str.format(field_value))
-				elif (isinstance(field_value, string)):
-					print("Not implemented")
+				elif (isinstance(field_value, str)):
+					sb = self.string_to_bitarray(field_value)
+					b.append(sb)
+				else:
+					raise Exception("Unsupported type for field {:s}: {:s}".format(self.name, type(field_value)))
 			return b
+
+	def string_to_bitarray(self, _string, _maxsize=448):
+		b = BitArray()
+		pos = 0
+		if (_string):
+			for c in _string:
+				c_str = "{:#09b}".format(ord(c))
+				print("{:s}:{:s}".format(c, c_str))
+				b.insert(c_str, pos)
+				pos += 7
+		if (len(b.bin) < _maxsize):
+			b.insert("{:#09b}".format(TERMINATOR), pos)
+		if (len(b.bin) > _maxsize):
+			raise Exception("Size of bit array exceeds the maximum size allowed ({:d}).".format(_maxsize))
+		return b
+
 
 # =============================================================================
 

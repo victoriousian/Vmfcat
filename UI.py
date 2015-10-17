@@ -753,6 +753,8 @@ class VmfShell(object):
 	
 					if (len(tokens) >= 2):
 						field = tokens[1].lower()
+						if not field in Params.parameters.keys():
+							raise Exception("Unknown field/group: {:s}".format(field))
 
 					if (len(tokens) == 3):
 						fmt = tokens[2].lower()
@@ -770,12 +772,6 @@ class VmfShell(object):
 
 					self.logger.print_success("{}\t{}\t{}".format(field, vmf_value, output))
 
-					#vmf_factory = Factory(Params)
-					#header = vmf_factory.get_vmf_msg()
-					#print(header[0].get_bit_array().bin)
-					#print(header[0].get_bit_array().hex)
-					#vmf_bitarray = vmf_message.get_bit_array()
-					
 				elif (cmd.lower() == VmfShell.CMD_SEARCH):
 					keyword = ' '.join(tokens[1:]).lower()
 					for p in Params.parameters.keys():
