@@ -727,6 +727,7 @@ class VmfShell(object):
 					#
 					# Sets a field with the given value
 					#
+					# TODO: Issues with parameters with boolean values
 					if (len(tokens) == 3):
 						param = tokens[1]
 						value = tokens[2]
@@ -738,7 +739,7 @@ class VmfShell(object):
 									self.logger.print_success("{:s} = {:s}".format(param, new_value))
 								else:
 									self.logger.print_error("Invalid value ({:s}) for field {:s}.".format(value, param))
-									self.logger.print_info("Values for field are : {:s}.".format(','.join(Params.parameters[param]["choices"])))
+									self.logger.print_info("Values for field are : {:s}.".format(','.join(str(Params.parameters[param]["choices"]))))
 							else:
 								Params.__dict__[param] = value
 								new_value = Params.__dict__[param]
@@ -762,13 +763,13 @@ class VmfShell(object):
 					vmf_elem = vmf_message.header.elements[field]
 
 					if (isinstance(vmf_elem, Field)):
-						vmf_value = vmf_message.header.elements[field].value
+						vmf_value = vmf_elem.value
 					elif (isinstance(vmf_elem, Group)):
 						vmf_value = "n/a"
 					else:
 						raise Exception("Unknown type for element '{:s}'.".format(field))
 
-					vmf_bits = vmf_message.header.elements[field].get_bit_array()
+					vmf_bits = vmf_elem.get_bit_array()
 					output = vmf_bits
 
 					if (fmt == "bin"):

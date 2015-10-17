@@ -104,9 +104,7 @@ class Group(HeaderElement):
 		b = BitArray()
 		# Do not include a GPI/GRI for the root group,
 		# which is only a container.
-		if (self.is_root):
-			return b
-		else:
+		if (not self.is_root):
 			# Includes the GPI
 			b.append("{:#03b}".format(self.pi))
 		
@@ -120,11 +118,11 @@ class Group(HeaderElement):
 			if (self.is_repeatable):
 				b.append("{:#03b}".format(self.ri))
 
-			# Append all the sub bitstrings of each
-			# field contained in the group
-			for f in self.fields:
-				fbits = f.get_bit_array()
-				b.append(fbits)
-			return b
+		# Append all the sub bitstrings of each
+		# field contained in the group
+		for f in self.fields:
+			fbits = f.get_bit_array()
+			b.append(fbits)
+		return b
 
 
