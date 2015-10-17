@@ -29,10 +29,11 @@ __version__ = '.'.join(__version_info__)
 
 #//////////////////////////////////////////////////////////
 # Imports Statements
+import sys
 from Fields import *
 from Groups import *
 from Message import *
-
+from Logger import Logger
 #//////////////////////////////////////////////////////////
 
 MSG_SUCCESS = 0x0
@@ -397,8 +398,10 @@ class Factory(object):
 						_index=7)]
 	}
 
-	def __init__(self):
-		pass
+	def __init__(self, _logger = None):
+		self.logger = _logger
+		if (self.logger == None):
+			self.logger = Logger(sys.stdout)
 		'''
 		self.print_msg(MSG_INFO, "Building VMF factory...")
 		for field_name, field_value in _args.__dict__.items():
@@ -474,7 +477,10 @@ class Factory(object):
 		return None
 
 	def new_message(self, _args):
-	
+		"""
+			Generates a new VMF messages based on the attributes
+			given.
+		"""	
 		new_message = Message()
 	
 		# Iterate thru the parameters provided by the user to
@@ -485,7 +491,6 @@ class Factory(object):
 				# Get the field to create, and create a copy
 				# from the dictionary.
 				vmf_field_name = new_message.header.elements[field_name].name
-#				vmf_field_value = new_message.header.elements[field_name].value 
 				vmf_field_group = new_message.header.elements[field_name].grp_code
 				new_field = new_message.header.elements[field_name]
 				# Set the FPI/GPI of the field/group
@@ -499,7 +504,6 @@ class Factory(object):
 			parent_group = group.parent_group
 			if (not parent_group is None):
 				new_message.header.elements[parent_group].fields.append(group)
-				#self.print_msg(MSG_DEBUG, "Added '{:s}' child group to '{:s}'.".format(g_array[i].name, parent_group))
 		new_message.header.sort()
 		return new_message
 				
