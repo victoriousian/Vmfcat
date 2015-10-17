@@ -39,7 +39,6 @@ except ImportError:
 	print("[-] Could not load the 'Enum' module. Use `pip install Enum` to install it.")
 	sys.exit(1)
 
-#import BitArray
 try:
 	imp.find_module('bitstring')
 	from bitstring import BitArray
@@ -50,13 +49,15 @@ except ImportError:
 from Elements import *
 #//////////////////////////////////////////////////////////
 
-# =============================================================================
+#//////////////////////////////////////////////////////////
 # Global Variables
 
 ENABLE_FUTURE_GRP = 0
-
-TERMINATOR = 0x7F
-NO_STATEMENT       = 63
+# Terminator character for strings in VMF messages
+TERMINATOR 	= 0x7F
+# Value used when seconds are not specified in date time groups
+NO_STATEMENT	= 63
+#//////////////////////////////////////////////////////////
 
 
 # =============================================================================

@@ -752,16 +752,22 @@ class VmfShell(object):
 					fmt = "hex"
 	
 					if (len(tokens) >= 2):
-						field = tokens[1].lower()
-						if not field in Params.parameters.keys():
-							raise Exception("Unknown field/group: {:s}".format(field))
+						field = tokens[1]
 
 					if (len(tokens) == 3):
-						fmt = tokens[2].lower()
+						fmt = tokens[2]
 					
 					vmf_factory = Factory()
 					vmf_message = vmf_factory.new_message(Params)
-					vmf_value = vmf_message.header.elements[field].value
+					vmf_elem = vmf_message.header.elements[field]
+
+					if (isinstance(vmf_elem, Field)):
+						vmf_value = vmf_message.header.elements[field].value
+					elif (isinstance(vmf_elem, Group)):
+						vmf_value = "n/a"
+					else:
+						raise Exception("Unknown type for element '{:s}'.".format(field))
+
 					vmf_bits = vmf_message.header.elements[field].get_bit_array()
 					output = vmf_bits
 
