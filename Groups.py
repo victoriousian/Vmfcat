@@ -29,8 +29,22 @@ __version__ = '.'.join(__version_info__)
 
 #//////////////////////////////////////////////////////////
 # Imports Statements
-from enum import Enum
-from bitstring import BitArray
+import sys
+import imp
+try:
+	imp.find_module('enum')
+	from enum import Enum
+except ImportError:
+	print("[-] Could not load the 'Enum' module. Use `pip install Enum` to install it.")
+	sys.exit(1)
+
+try:
+	imp.find_module('bitstring')
+	from bitstring import BitArray
+except ImportError:
+	print("[-] Could not load the 'bitstring' module. Use `pip install bitstring` to install it.")
+	sys.exit(1)
+
 from Elements import *
 from Fields import Field
 #//////////////////////////////////////////////////////////
