@@ -34,6 +34,7 @@ from Fields import *
 from Groups import *
 from Message import *
 from Logger import Logger
+from bitstring import *
 #//////////////////////////////////////////////////////////
 
 # =============================================================================
@@ -97,3 +98,37 @@ class Factory(object):
 		# Sort the fields and groups according to index
 		new_message.header.sort()
 		return new_message
+
+	def read_message(self, _bitstream):
+		"""
+		In Construction
+		"""
+		#Check if bitstring is valid
+		if (_bitstream):
+			new_message = Message()
+			
+			field_version = new_message.header.elements[CODE_FLD_VERSION]
+			field_size = field_version.size
+			
+			version_value = _bitstream.read('uint:{:d}'.format(field_size))
+			#TODO: enable future fields				
+			if (version_value >= version.std47001d_change):
+				print("Not Implemented.")
+				
+			field_version.value = version_value
+			
+			read_stream = True
+			
+			try:
+				field_index = 1
+				
+				while (read_stream):
+					next_bit = _bitstream.read('uint:1')
+					if next_bit == PRESENT:
+						print("Field is present.")
+					field_index += 1
+			except ReadError as re:
+				read_stream = False
+			
+		else:
+			raise Exception("Null bitstring received.")
