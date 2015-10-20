@@ -35,6 +35,7 @@ from bitstring import BitArray
 from Fields import *
 from Groups import *
 from Logger import *
+from Elements import *
 #//////////////////////////////////////////////////////////
 
 class Message(object):
@@ -54,124 +55,124 @@ class Header(object):
 	
 	def __init__(self):
 		self.elements = {
-			"vmfversion"    : Field(
+			CODE_FLD_VERSION    : Field(
 						_name="Version",
 						_size=4,
 						_enumerator=version,
 						_groupcode=CODE_GRP_HEADER,
 						_indicator=True,
 						_index=0),
-			"compress"      : Field(
+			CODE_FLD_COMPRESS      : Field(
 						_name="Data Compression",
 						_size=2,
 						_enumerator=data_compression,
 						_groupcode=CODE_GRP_HEADER,
 						_index=1),
-			"originator_urn": Field(
+			CODE_FLD_ORIG_URN: Field(
 						_name="Originator URN",
 						_size=24, 
 						_groupcode=CODE_GRP_ORIGIN_ADDR,
 						_index=0),
-			"originator_unitname": Field(
+			CODE_FLD_ORIG_UNIT: Field(
 						_name="Originator Unit Name", 
 						_size=448, 
 						_groupcode=CODE_GRP_ORIGIN_ADDR,
 						_index=0),
-			"rcpt_urns"     : Field(
+			CODE_FLD_RCPT_URN     : Field(
 						_name="Recipient URN", 
 						_size=24, 
 						_groupcode=CODE_GRP_RCPT_ADDR,
 						_index=0),
-			"rcpt_unitnames"    : Field(
+			CODE_FLD_RCPT_UNIT    : Field(
 						_name="Recipient Unit Name", 
 						_size=448, 
 						_groupcode=CODE_GRP_RCPT_ADDR,
 						_index=0),
-			"info_urns"     : Field(
+			CODE_FLD_INFO_URN     : Field(
 						_name="Information URN", 
 						_size=24, 
 						_groupcode=CODE_GRP_INFO_ADDR,
 						_index=0),
-			"info_unitnames"    : Field(
+			CODE_FLD_INFO_UNIT    : Field(
 						_name="Information Unit Name", 
 						_size=448, 
 						_groupcode=CODE_GRP_INFO_ADDR,
 						_index=0),
-			"umf"           : Field(
+			CODE_FLD_UMF           : Field(
 						_name="UMF", 
 						_size=4, 
 						_enumerator=umf,
 						_groupcode=CODE_GRP_MSG_HAND,
 						_index=0),
-			"messagevers"       : Field(
+			CODE_FLD_MSG_VERS       : Field(
 						_name="Message Standard Version", 
 						_size=4, 
 						_groupcode=CODE_GRP_MSG_HAND,
 						_index=1),
-			"fad"           : Field(
+			CODE_FLD_FAD           : Field(
 						_name="FAD", 
 						_size=4,
 						_enumerator=fad_codes, 
 						_groupcode=CODE_GRP_VMF_MSG_IDENT,
 						_index=0),
-			"msgnumber"     : Field(
+			CODE_FLD_MSG_NUM     : Field(
 						_name="Message Number",
 						_size=7,
 						_groupcode=CODE_GRP_VMF_MSG_IDENT,
 						_index=1),
-			"msgsubtype"        : Field(
+			CODE_FLD_MSG_STYPE	: Field(
 						_name="Message Subtype",
 						_size=7,
 						_groupcode=CODE_GRP_VMF_MSG_IDENT,
 						_index=2),
-			"filename"      : Field(
+			CODE_FLD_FILENAME	: Field(
 						_name="File name",
 						_size=448,
 						_groupcode=CODE_GRP_MSG_HAND,
 						_index=3),
-			"msgsize"       : Field(
+			CODE_FLD_MSG_SIZE	: Field(
 						_name="Message Size",
 						_size=20,
 						_groupcode=CODE_GRP_MSG_HAND,
 						_index=4),
-			"opind"         : Field(
+			CODE_FLD_OPIND		: Field(
 						_name="Operation Indicator",
 						_size=2,
 						_groupcode=CODE_GRP_MSG_HAND,
 						_index=5),
-			"retransmission"    : Field(
+			CODE_FLD_RETX		: Field(
 						_name="Retransmit Indicator",
 						_size=1,
 						_groupcode=CODE_GRP_MSG_HAND,
 						_index=6),
-			"msgprecedence"     : Field(
+			CODE_FLD_MSG_PREC	: Field(
 						_name="Message Precedence Code",
 						_size=3,
 						_enumerator=precedence,
 						_groupcode=CODE_GRP_MSG_HAND,
 						_index=7),
-			"classification"    : Field(
+			CODE_FLD_CLASS		: Field(
 						_name="Security Classification",
 						_size=2,
 						_enumerator=classification,
 						_groupcode=CODE_GRP_MSG_HAND,
 						_index=8),
-			"releasemark"       : Field(
+			CODE_FLD_RELEASE	: Field(
 						_name="Control/Release Marking",
 						_size=9,
 						_repeatable=True,
 						_groupcode=CODE_GRP_MSG_HAND,
 						_index=9),
-			"originatordtg"     : dtg_field(
+			CODE_FLD_ORIG_DTG	: dtg_field(
 						_name="Originator DTG",
 						_groupcode=CODE_GRP_ORIGIN_DTG,
 						_index=10),
-			"perishdtg"     : dtg_field(
+			CODE_FLD_PRSH_DTG	: dtg_field(
 						_name="Perishability DTG",
 						_groupcode=CODE_GRP_PERISH_DTG,
 						_extension=False,
 						_index=11),
-			"ackmachine"    : Field(
+			CODE_FLD_MCHN_ACK	: Field(
 						_name="Machine Acknowledge",
 						_size=1,
 						_groupcode=CODE_GRP_ACK,
