@@ -44,6 +44,7 @@ import argparse
 import traceback
 from Factory import *
 from Logger import *
+from bitstring import *
 #//////////////////////////////////////////////////////////
 
 
@@ -795,8 +796,12 @@ class VmfShell(object):
 						self.logger.print_success("Saved VMF message to {:s}.".format(file))
 					else:
 						self.logger.print_error("Specify a file to save the configuration to.")
-						
+				elif (cmd.lower() == "test"):
+					s = BitStream('0x40')
+					vmf_factory = Factory()
+					vmf_message = vmf_factory.read_message(s)					
 				elif (cmd.lower() == VmfShell.CMD_LOAD):
+					#TODO: Fails. Not loading into namespace
 					self.logger.print_error("Not implemented.")
 					
 					if len(tokens) == 2:
