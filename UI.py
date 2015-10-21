@@ -55,7 +55,7 @@ class Params:
       "debug" : {
             "cmd"       : "debug",
             "help"      : "Enables debug mode.",
-            "choices"   : [1, 0]
+            "choices"   : [True, False]
             },
       "vmfversion" : {
             "cmd"       : "vmfversion",
@@ -754,7 +754,7 @@ class VmfShell(object):
 					if (len(tokens) == 3):
 						fmt = tokens[2]
 					
-					vmf_factory = Factory()
+					vmf_factory = Factory(_logger=self.logger)
 					vmf_message = vmf_factory.new_message(Params)
 					vmf_elem = vmf_message.header.elements[field]
 
@@ -797,9 +797,9 @@ class VmfShell(object):
 					else:
 						self.logger.print_error("Specify a file to save the configuration to.")
 				elif (cmd.lower() == "test"):
-					s = BitStream('0x40')
-					vmf_factory = Factory()
-					vmf_message = vmf_factory.read_message(s)					
+					s = BitStream('0x4023')
+					vmf_factory = Factory(_logger=self.logger)
+					vmf_message = vmf_factory.read_message2(s)					
 				elif (cmd.lower() == VmfShell.CMD_LOAD):
 					#TODO: Fails. Not loading into namespace
 					self.logger.print_error("Not implemented.")
