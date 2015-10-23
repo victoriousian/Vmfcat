@@ -108,3 +108,6 @@ class HeaderElement(object):
 		
 	def __cmp__(self, _object):
 		pass
+		
+	def is_present(self):
+		return self.pi == PRESENT		
