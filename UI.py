@@ -774,7 +774,6 @@ class VmfShell(object):
 						output = vmf_bits.hex
 
 					self.logger.print_success("{}\t{}\t{}".format(field, vmf_value, output))
-
 				elif (cmd.lower() == VmfShell.CMD_SEARCH):
 					keyword = ' '.join(tokens[1:]).lower()
 					for p in Params.parameters.keys():
@@ -797,9 +796,9 @@ class VmfShell(object):
 					else:
 						self.logger.print_error("Specify a file to save the configuration to.")
 				elif (cmd.lower() == "test"):
-					s = BitStream('0x4023')
+					bstream = BitStream('0x4023')
 					vmf_factory = Factory(_logger=self.logger)
-					vmf_message = vmf_factory.read_message2(s)					
+					vmf_message = vmf_factory.read_message(bstream)					
 				elif (cmd.lower() == VmfShell.CMD_LOAD):
 					#TODO: Fails. Not loading into namespace
 					self.logger.print_error("Not implemented.")
