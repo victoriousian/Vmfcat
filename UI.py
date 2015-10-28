@@ -797,17 +797,20 @@ class VmfShell(object):
 					else:
 						self.logger.print_error("Specify a file to save the configuration to.")
 				elif (cmd.lower() == "test"):
-					s = BitStream('0x4023')
+					if (len(tokens) == 2):
+						vmf_params = tokens[1]
+					else:
+						vmf_params = '0x4023'
+					s = BitStream(vmf_params)
 					vmf_factory = Factory(_logger=self.logger)
 					vmf_message = vmf_factory.read_message2(s)					
 				elif (cmd.lower() == VmfShell.CMD_LOAD):
-					#TODO: Fails. Not loading into namespace
-					self.logger.print_error("Not implemented.")
-					
 					if len(tokens) == 2:
 						file = tokens[1]
 						with open(file, 'r') as f:
-							Params.parameters = json.load(f)
+							param_dict = json.load(f)
+							for (param, value) in param_dict.iteritems():
+								Params.__dict__[param] = value
 						self.logger.print_success("Loaded VMF message from {:s}.".format(file))
 					else:
 						self.logger.print_error("Specify a file to load the configuration from.")
