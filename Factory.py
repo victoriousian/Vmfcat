@@ -112,7 +112,7 @@ class Factory(object):
 			new_message = Message()
 
 			# Iterate thru the parameters provided by the user to
-			# create the message object.
+			# create the message object with default values.
 			for (field_name, field_obj) in new_message.header.fields().iteritems():
 				vmf_field_group = field_obj.grp_code
 				vmf_group_obj = new_message.header.elements[vmf_field_group]
@@ -127,6 +127,7 @@ class Factory(object):
 			new_message.header.sort()
 			root_grp = new_message.header.elements[CODE_GRP_HEADER]
 			self.logger.print_debug("Creating message from stream:\n{:s}".format(_bitstream.hex))
+			# Populate the fields based on the bitstream received.
 			self.read_message3(root_grp, _bitstream)
 
 	def read_message3(self, _element, _bitstream):
@@ -172,74 +173,3 @@ class Factory(object):
 		else:
 			raise Exception("Unknown/Unsupported object type: {:s}".format(type(_element)))
 
-	def read_message(self, _bitstream):
-		"""
-		In Construction
-		"""
-		#Check if bitstring is valid
-		if (_bitstream):
-			self.logger.print_debug("Reading new VMF message...")
-			#Creates a new VMF message object
-			new_message = Message()
-			
-			#We first check the version of the VMF message
-			field_version = new_message.header.elements[CODE_FLD_VERSION]
-			field_size = field_version.size
-			version_value = _bitstream.read('uint:{:d}'.format(field_size))
-			# Depending on the version, we will need to consider
-			# Future fields added in version D/CHANGE
-			#TODO: enable future fields				
-			if (version_value >= version.std47001d_change):
-				self.logger.print_warning("Future fields is not supported at the moment.")				
-			field_version.value = version_value
-			self.logger.print_info("VMF Message version 0x{:x} received.".format(version_value))
-
-			read_stream = True
-			
-			try:
-				elem_index = 1
-				elem_parent = CODE_GRP_HEADER
-
-				while (read_stream):
-					elem_name = self.elements_sorted_pos[elem_index]
-					elem_obj = new_message.header.elements[elem_name]
-					elem_is_field = True
-					if (isinstance(elem_obj, Group)):
-						elem_is_field = False
-					field_value = 0
-
-					#TODO: Manage repeatable fields.
-
-					# If field has a FPI/GPI bit indicator, read
-					# the next bit as the FPI
-					if not elem_is_field or not elem_obj.is_indicator:
-						elem_obj.pi = _bitstream.read('uint:1')
-						# If the field is repeatable and is present
-						# read the next bit as the FRI/GRI
-						if (elem_obj.pi == PRESENT and 
-							elem_obj.is_repeatable):
-							elem_obj.ri = _bitstream.read('uint:1')
-						# Otherwise, if the field is present, but not
-						# repeatable, just read the value
-						if (elem_obj.pi == PRESENT):
-							if (elem_is_field):
-								elem_obj.value = _bitstream.read(elem_obj.size)
-							else:
-								elem_parent = elem_name
-							elem_obj.grp_code = elem_parent
-					else:
-						if (elem_is_field):
-							elem_obj.value = _bitstream.read(elem_obj.size)
-						else:
-							elem_parent = elem_name
-						elem_obj.grp_code = elem_parent
-					if (elem_obj.pi == PRESENT):
-						self.logger.print_debug("Field/Group '{:s}' in group '{:s}' found with value {	}'.".format(elem_name, elem_parent, elem_obj.value))
-					else:
-						self.logger.print_debug("Field/Group '{:s}' not found.".format(elem_name))
-					elem_index += 1
-			except ReadError as re:
-				read_stream = False
-			
-		else:
-			raise Exception("Null bitstring received.")
