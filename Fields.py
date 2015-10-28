@@ -229,13 +229,13 @@ class Params:
             "help"      : "Enables debug mode.",
             "choices"   : [True, False]
             },
-      "vmfversion" : {
+      CODE_FLD_VERSION : {
             "cmd"       : "vmfversion",
             "help"      :
                 """Field representing the version of the MIL-STD-2045-47001 header being used for the message.""",
             "choices"   : ["std47001", "std47001b","std47001c","std47001d","std47001d_change"]
             },
-      "compress" : {
+      CODE_FLD_COMPRESS : {
             "cmd"       : "compress",
             "help"      :
                 """This field represents whether the message or messages contained in the User Data portion of the Application PDU have been UNIX compressed or compressed using GZIP.""",
@@ -247,52 +247,52 @@ class Params:
                 """Indicates the size in octets of the header""",
             "choices"   : []
           },
-      "originator_urn" : {
+      CODE_FLD_ORIG_URN : {
             "cmd"       : "originator_urn",
             "help"      : """24-bit code used to uniquely identify friendly military units, broadcast networks and multicast groups.""",
             "choices"   : []
           },
-      "originator_unitname" : {
+      CODE_FLD_ORIG_UNIT : {
             "cmd"       : "originator_unitname",
             "help"      : """Specify the name of the unit sending the message.""",
             "choices"   : []
           },
-      "rcpt_urns"       : {
+      CODE_FLD_RCPT_URN : {
             "cmd"       : "rcpt_urns",
             "help"      : """List of 24-bit codes used to uniquely identify friendly units.""",
             "choices"   : []
           },
-      "rcpt_unitnames"       : {
+      CODE_FLD_RCPT_UNIT: {
             "cmd"       : "rcpt_unitnames",
             "help"      : """ List of variable size fields of character-coded identifiers for friendly units. """,
             "choices"   : []
           },
-      "info_urns"       : {
+      CODE_FLD_INFO_URN : {
             "cmd"       : "info_urns",
             "help"      : """List of 24-bit codes used to uniquely identify friendly units.""",
             "choices"   : []
           },
-      "info_unitnames"       : {
+      CODE_FLD_INFO_UNIT: {
             "cmd"       : "info_unitnames",
             "help"      : """ List of variable size fields of character-coded identifiers for friendly units. """,
             "choices"   : []
           },
-      "umf"             : {
+      CODE_FLD_UMF      : {
             "cmd"       : "umf",
             "choices"   : ["link16", "binary", "vmf", "nitfs", "rdm", "usmtf", "doi103", "xml-mtf", "xml-vmf"],
             "help"      : """ Indicates the format of the message contained in the user data field."""
           },
-      "messagevers"     : {
+      CODE_FLD_MSG_VERS : {
             "cmd"       : "messagevers",
             "choices"   : [],
             "help"      : """Represents the version of the message standard contained in the user data field."""
             },
-      "fad"             : {
+      CODE_FLD_FAD      : {
             "cmd"       : "fad",
             "choices"   : ["netcon", "geninfo", "firesp", "airops", "intops", "landops","marops", "css", "specialops", "jtfopsctl", "airdef"],
             "help"      : "Identifies the functional area of a specific VMF message using code words."
             },
-      "msgnumber"       : {
+      CODE_FLD_MSG_NUM  : {
             "cmd"       : "msgnumber",
             "choices"   : [],
             "help"      : """Represents the number that identifies a specific VMF message within a functional area."""
@@ -302,7 +302,7 @@ class Params:
             "choices"   : [],
             "help"      : """Represents a specific case within a VMF message, which depends on the UMF, FAD and message number."""
             },
-      "filename"        : {
+      CODE_FLD_FILENAME : {
             "cmd"       : "filename",
             "choices"   : [],
             "help"      : """Indicates the name of the computer file or data block contained  in the User Data portion of the application PDU."""
@@ -371,7 +371,7 @@ class Params:
 class Field(HeaderElement):
 
 	def __init__(self, _name, _size, _value=0, _groupcode = 0, 
-		_repeatable=False, _max_repeat=0, _indicator=False, 
+		_repeatable=False, _max_repeat=0, _indicator=False, _string=False,
 		_enumerator=None, _index=0):
 		
 		super(Field, self).__init__(_name, _repeatable, _max_repeat, _index)
@@ -380,6 +380,7 @@ class Field(HeaderElement):
 		self.ri = DEFAULT_FRI
 		self.size = _size
 		self.value = _value
+		self.is_string = _string
 		self.grp_code = _groupcode
 		self.is_indicator = _indicator
 		self.enumerator = _enumerator
@@ -395,7 +396,7 @@ class Field(HeaderElement):
 			return self.index.__cmp__(_field.index)
 		else:
 			raise Exception("Provided comparision item must be an integer.")
-
+			
 	def enable_and_set(self, _value):
 		self.pi = PRESENT
 		self.value = _value

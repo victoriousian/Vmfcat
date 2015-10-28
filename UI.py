@@ -774,7 +774,6 @@ class VmfShell(object):
 						output = vmf_bits.hex
 
 					self.logger.print_success("{}\t{}\t{}".format(field, vmf_value, output))
-
 				elif (cmd.lower() == VmfShell.CMD_SEARCH):
 					keyword = ' '.join(tokens[1:]).lower()
 					for p in Params.parameters.keys():
@@ -797,13 +796,17 @@ class VmfShell(object):
 					else:
 						self.logger.print_error("Specify a file to save the configuration to.")
 				elif (cmd.lower() == "test"):
+<<<<<<< HEAD
 					if (len(tokens) == 2):
 						vmf_params = tokens[1]
 					else:
 						vmf_params = '0x4023'
 					s = BitStream(vmf_params)
+=======
+					bstream = BitStream('0x4023')
+>>>>>>> 93a3024077784957310d973e5f27c666e8e5e5f1
 					vmf_factory = Factory(_logger=self.logger)
-					vmf_message = vmf_factory.read_message2(s)					
+					vmf_message = vmf_factory.read_message(bstream)					
 				elif (cmd.lower() == VmfShell.CMD_LOAD):
 					if len(tokens) == 2:
 						file = tokens[1]

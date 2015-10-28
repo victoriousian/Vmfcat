@@ -77,6 +77,7 @@ class Header(object):
 						_name="Originator Unit Name", 
 						_size=448, 
 						_groupcode=CODE_GRP_ORIGIN_ADDR,
+						_string=True,
 						_index=0),
 			CODE_FLD_RCPT_URN     : Field(
 						_name="Recipient URN", 
@@ -87,6 +88,7 @@ class Header(object):
 						_name="Recipient Unit Name", 
 						_size=448, 
 						_groupcode=CODE_GRP_RCPT_ADDR,
+						_string=True,
 						_index=0),
 			CODE_FLD_INFO_URN     : Field(
 						_name="Information URN", 
@@ -97,6 +99,7 @@ class Header(object):
 						_name="Information Unit Name", 
 						_size=448, 
 						_groupcode=CODE_GRP_INFO_ADDR,
+						_string=True,
 						_index=0),
 			CODE_FLD_UMF           : Field(
 						_name="UMF", 
@@ -129,6 +132,7 @@ class Header(object):
 						_name="File name",
 						_size=448,
 						_groupcode=CODE_GRP_MSG_HAND,
+						_string=True,
 						_index=3),
 			CODE_FLD_MSG_SIZE	: Field(
 						_name="Message Size",

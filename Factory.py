@@ -105,7 +105,7 @@ class Factory(object):
 		new_message.header.sort()
 		return new_message
 
-	def read_message2(self, _bitstream):
+	def read_message(self, _bitstream):
 		#Check if bitstring is valid
 		if (_bitstream != None):
 			#Creates a new VMF message object
@@ -127,10 +127,14 @@ class Factory(object):
 			new_message.header.sort()
 			root_grp = new_message.header.elements[CODE_GRP_HEADER]
 			self.logger.print_debug("Creating message from stream:\n{:s}".format(_bitstream.hex))
+<<<<<<< HEAD
 			# Populate the fields based on the bitstream received.
 			self.read_message3(root_grp, _bitstream)
+=======
+			self.read_message_rec(root_grp, _bitstream)
+>>>>>>> 93a3024077784957310d973e5f27c666e8e5e5f1
 
-	def read_message3(self, _element, _bitstream):
+	def read_message_rec(self, _element, _bitstream):
 		#TODO: Manage repeatable fields
 		if (isinstance(_element, Field)):
 			# If field has a FPI bit indicator, read
@@ -139,16 +143,30 @@ class Factory(object):
 				_element.pi = _bitstream.read('uint:1')
 				# If the field is repeatable and is present
 				# read the next bit as the FRI
-				if (_element.pi == PRESENT):
+				if (_element.is_present()):
 					if (_element.is_repeatable):
 						_element.ri = _bitstream.read('uint:1')
 					# Finally, read the value
 					_element.value = _bitstream.read(_element.size)
+					while (_element.ri):
+						_element.ri = _bitstream.read('uint:1')
+						#TODO: Manage multiple values
+						
 			# If this field has not FPI/FRI, e.g. flags, version,
 			# simply read the value.
 			else:
-				#TODO: Manage strings /448 or TERMINATOR
-				_element.value = _bitstream.read('uint:{:d}'.format(_element.size))
+				if _element.is_string:
+					str = ""
+					count = 0
+					char = ''
+					while (count <= 448 and char != TERMINATOR):
+						char = chr(_bitstring.read('uint:7'))
+						count += 7
+						if (char != TERMINATOR):
+							str += char
+					_element.value = str
+				else:
+					_element.value = _bitstream.read('uint:{:d}'.format(_element.size))
 
 			self.logger.print_debug("Processing field '{:s}': FPI={:d}, FRI={:d}, value={}".format(
 				_element.name, _element.pi, _element.ri, _element.value))
@@ -172,4 +190,7 @@ class Factory(object):
 					self.read_message3(sub_elem, _bitstream)			
 		else:
 			raise Exception("Unknown/Unsupported object type: {:s}".format(type(_element)))
+<<<<<<< HEAD
 
+=======
+>>>>>>> 93a3024077784957310d973e5f27c666e8e5e5f1
