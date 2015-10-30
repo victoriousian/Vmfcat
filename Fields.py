@@ -398,8 +398,9 @@ class Field(HeaderElement):
 			raise Exception("Provided comparision item must be an integer.")
 			
 	def enable_and_set(self, _value):
-		self.pi = PRESENT
-		self.value = _value
+		if (_value != None):
+			self.pi = PRESENT
+			self.value = _value
 
 	def get_value_from_dict(self, _key, _dict):
 		for key, value in _dict.__dict__.items():
@@ -415,6 +416,7 @@ class Field(HeaderElement):
 		if (self.is_indicator):
 			field_value = self.value
 			#TODO: Replace string with constant/field variable
+			print("Name: " + self.name)
 			if (self.name == "Version" and self.enumerator):
 				field_value = self.get_value_from_dict(self.value, self.enumerator)
 				b.append(self.format_str.format(field_value))
@@ -517,6 +519,9 @@ class dtg_field(Field):
 
     def enable_and_set(self, _value):
         #Expected format: YYYY-MM-DD HH:mm[:ss] [extension]"
+	if (not _value == None):
+		return 
+
         self.value = _value
         if (_value):
             self.pi = PRESENT

@@ -127,12 +127,9 @@ class Factory(object):
 			new_message.header.sort()
 			root_grp = new_message.header.elements[CODE_GRP_HEADER]
 			self.logger.print_debug("Creating message from stream:\n{:s}".format(_bitstream.hex))
-<<<<<<< HEAD
 			# Populate the fields based on the bitstream received.
 			self.read_message3(root_grp, _bitstream)
-=======
 			self.read_message_rec(root_grp, _bitstream)
->>>>>>> 93a3024077784957310d973e5f27c666e8e5e5f1
 
 	def read_message_rec(self, _element, _bitstream):
 		#TODO: Manage repeatable fields
@@ -190,7 +187,3 @@ class Factory(object):
 					self.read_message3(sub_elem, _bitstream)			
 		else:
 			raise Exception("Unknown/Unsupported object type: {:s}".format(type(_element)))
-<<<<<<< HEAD
-
-=======
->>>>>>> 93a3024077784957310d973e5f27c666e8e5e5f1
