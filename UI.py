@@ -724,9 +724,9 @@ class VmfShell(object):
 					# Sets a field with the given value
 					#
 					# TODO: Issues with parameters with boolean values
-					if (len(tokens) == 3):
+					if (len(tokens) >= 3):
 						param = tokens[1]
-						value = tokens[2]
+						value = ' '.join(tokens[2:])
 						if (param in Params.__dict__.keys()):
 							if (Params.parameters[param]["choices"]):
 								if (value in Params.parameters[param]["choices"]):
@@ -746,7 +746,7 @@ class VmfShell(object):
 						self.logger.print_error("Usage: {:s} <field> <value>".format(VmfShell.CMD_SET))
 				elif (cmd.lower() == VmfShell.CMD_HEADER):
 					field = "vmfversion"
-					fmt = "hex"
+					fmt = "bin"
 	
 					if (len(tokens) >= 2):
 						field = tokens[1]
@@ -796,15 +796,12 @@ class VmfShell(object):
 					else:
 						self.logger.print_error("Specify a file to save the configuration to.")
 				elif (cmd.lower() == "test"):
-<<<<<<< HEAD
 					if (len(tokens) == 2):
 						vmf_params = tokens[1]
 					else:
 						vmf_params = '0x4023'
 					s = BitStream(vmf_params)
-=======
 					bstream = BitStream('0x4023')
->>>>>>> 93a3024077784957310d973e5f27c666e8e5e5f1
 					vmf_factory = Factory(_logger=self.logger)
 					vmf_message = vmf_factory.read_message(bstream)					
 				elif (cmd.lower() == VmfShell.CMD_LOAD):
