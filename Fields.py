@@ -430,12 +430,16 @@ class Field(HeaderElement):
 			# If the fiels is flagged as present, then
 			# append additional data.
 			if (self.pi == PRESENT):
-				field_value = self.value
+				if (not self.is_string):
+					field_value = int(self.value)
+				else:
+					field_value = self.value
 
 				# If the field is provided with an enumerator,get the
 				# numeric value.
 				if (self.enumerator):
 					field_value = self.get_value_from_dict(self.value, self.enumerator)
+				
 
 				# If the value is numeric, convert directly to a bitstring
 				if (isinstance(field_value, int)):
