@@ -47,6 +47,7 @@ except ImportError:
 	sys.exit(1)
 
 from Elements import *
+from datetime import datetime
 #//////////////////////////////////////////////////////////
 
 #//////////////////////////////////////////////////////////
@@ -523,7 +524,7 @@ class dtg_field(Field):
 
     def enable_and_set(self, _value):
         #Expected format: YYYY-MM-DD HH:mm[:ss] [extension]"
-	if (not _value == None):
+	if (_value == None):
 		return 
 
         self.value = _value
@@ -544,9 +545,8 @@ class dtg_field(Field):
                     self.fields["second"].enable_and_set(NO_STATEMENT)
                 #TODO: the year should only contain the last 2 digits, not the entire
                 # 4 digits.
-                date_obj = datetime.datetime.strptime(date_items[0] + ' ' + date_items[1], format_str)
+                date_obj = datetime.strptime(date_items[0] + ' ' + date_items[1], format_str)
                 self.fields["year"].enable_and_set(date_obj.year)
-                print(self.fields["year"])
                 self.fields["month"].enable_and_set(date_obj.month)
                 self.fields["day"].enable_and_set(date_obj.day)
                 self.fields["hour"].enable_and_set(date_obj.hour)
