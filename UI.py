@@ -688,6 +688,8 @@ class VmfShell(object):
 						self.logger.print_info("{:s} [field] {{bin, hex}}".format(VmfShell.CMD_HEADER))
 						self.logger.print_info("{:s} <field>".format(VmfShell.CMD_HELP))
 						self.logger.print_info("{:s} <field>".format(VmfShell.CMD_SEARCH))
+						self.logger.print_info("{:s} <file>".format(VmfShell.CMD_SAVE))
+						self.logger.print_info("{:s} <file>".format(VmfShell.CMD_LOAD))
 						self.logger.print_info("{:s}".format(VmfShell.CMD_QUIT))
 					else:
 						param = tokens[1]
