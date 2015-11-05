@@ -416,11 +416,11 @@ class Field(HeaderElement):
 		if (self.is_indicator):
 			field_value = self.value
 			#TODO: Replace string with constant/field variable
-			print("Name: " + self.name)
 			if (self.name == "Version" and self.enumerator):
 				field_value = self.get_value_from_dict(self.value, self.enumerator)
 				b.append(self.format_str.format(field_value))
-			else:   
+			else: 
+				field_value = int(self.value)
 				b.append("{:#03b}".format(field_value))
 			return b
 		else:
@@ -444,7 +444,7 @@ class Field(HeaderElement):
 						b.append("{:#03b}".format(self.fri))
 				#	if (self.pi == PRESENT or self.is_indicator):
 					b.append(self.format_str.format(field_value))
-				elif (isinstance(field_value, str)):
+				elif (isinstance(field_value, str) or isinstance(field_value, unicode)):
 					sb = self.string_to_bitarray(field_value)
 					b.append(sb)
 				else:
