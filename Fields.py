@@ -241,7 +241,7 @@ class Params:
                 """This field represents whether the message or messages contained in the User Data portion of the Application PDU have been UNIX compressed or compressed using GZIP.""",
             "choices"   : ["unix", "gzip"]
             },
-      "headersize" : {
+      CODE_FLD_MSG_SIZE : {
             "cmd"       : "headersize",
             "help"      :
                 """Indicates the size in octets of the header""",
