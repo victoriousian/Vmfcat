@@ -142,6 +142,7 @@ class Header(object):
 			CODE_FLD_OPIND		: Field(
 						_name="Operation Indicator",
 						_size=2,
+						_enumerator=operation,
 						_groupcode=CODE_GRP_MSG_HAND,
 						_index=5),
 			CODE_FLD_RETX		: Field(
