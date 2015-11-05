@@ -230,6 +230,11 @@ class Params:
             "help"      : "Enables debug mode.",
             "choices"   : [True, False]
             },
+      "data" : {
+	    "cmd"	: "data",
+	    "help"  : "Specifies a file containing data to be included in the VMF message.",
+	    "choices"	: []
+	    },
       CODE_FLD_VERSION : {
             "cmd"       : "vmfversion",
             "help"      :
@@ -544,9 +549,12 @@ class dtg_field(Field):
                 else:
                     self.fields["second"].enable_and_set(NO_STATEMENT)
                 #TODO: the year should only contain the last 2 digits, not the entire
-                # 4 digits.
                 date_obj = datetime.strptime(date_items[0] + ' ' + date_items[1], format_str)
-                self.fields["year"].enable_and_set(date_obj.year)
+		century = int(date_obj.year / 100)
+		year = date_obj.year % 100
+			
+                # 4 digits.
+                self.fields["year"].enable_and_set(year)
                 self.fields["month"].enable_and_set(date_obj.month)
                 self.fields["day"].enable_and_set(date_obj.day)
                 self.fields["hour"].enable_and_set(date_obj.hour)

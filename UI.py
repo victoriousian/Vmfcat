@@ -57,6 +57,11 @@ class Params:
             "help"      : "Enables debug mode.",
             "choices"   : [True, False]
             },
+      "data" : {
+		"cmd"	: "data",
+		"help"  : "Specifies a file containing data to be included in the VMF message.",
+		"choices" : []
+	    },
       "vmfversion" : {
             "cmd"       : "vmfversion",
             "help"      :
@@ -328,6 +333,9 @@ io_options.add_argument("-of", "--ofile",
     type=argparse.FileType('w'),
         default=sys.stdout,
         help="File to output the results. STDOUT by default.")
+io_options.add_argument("--data",
+    dest=Params.parameters['data']['cmd'],
+    help=Params.parameters['data']['help'])
 # =============================================================================
 # Application Header Arguments
 header_options = parser.add_argument_group(
